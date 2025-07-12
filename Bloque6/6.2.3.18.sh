@@ -42,10 +42,10 @@ else
   fi
 fi
 
-if [[ $DRY_RUN -eq 0 ]]; then
-  log "Recargando reglas con augenrules..."
-  augenrules --load
-fi
+#if [[ $DRY_RUN -eq 0 ]]; then
+#  log "Recargando reglas con augenrules..."
+#  augenrules --load
+#fi
 
 log "[SUCCESS] ${ITEM_ID} aplicado"
 exit 0

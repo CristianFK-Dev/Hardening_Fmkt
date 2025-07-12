@@ -65,11 +65,11 @@ main() {
   add_rule "$RULE_B64"
   add_rule "$RULE_B32"
 
-  if [[ $DRY_RUN -eq 0 ]]; then
-    log "Recargando reglas (augenrules --load)..."
-    augenrules --load
-    log "[OK] Reglas de auditoría cargadas"
-  fi
+  #if [[ $DRY_RUN -eq 0 ]]; then
+  #  log "Recargando reglas (augenrules --load)..."
+  #  augenrules --load
+  #  log "[OK] Reglas de auditoría cargadas"
+  #fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
 }

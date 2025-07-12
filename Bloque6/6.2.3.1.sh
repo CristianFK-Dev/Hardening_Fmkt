@@ -70,11 +70,11 @@ main() {
   add_rule "$RULE1"
   add_rule "$RULE2"
 
-  if [[ $DRY_RUN -eq 0 ]]; then
-    log "Recargando reglas con augenrules --load ..."
-    augenrules --load
-    log "[OK] Reglas cargadas"
-  fi
+  #if [[ $DRY_RUN -eq 0 ]]; then
+  #  log "Recargando reglas con augenrules --load ..."
+  #  augenrules --load
+  #  log "[OK] Reglas cargadas"
+  #fi
 
   log "[SUCCESS] $ITEM_ID aplicado"
 }

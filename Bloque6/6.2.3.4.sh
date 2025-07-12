@@ -46,10 +46,10 @@ for rule in "${RULES[@]}"; do
   fi
 done
 
-if [[ $DRY_RUN -eq 0 ]]; then
-  log "Recargando reglas..."
-  augenrules --load
-fi
+#if [[ $DRY_RUN -eq 0 ]]; then
+#  log "Recargando reglas..."
+#  augenrules --load
+#fi
 
 log "[SUCCESS] $ITEM_ID aplicado"
 exit 0

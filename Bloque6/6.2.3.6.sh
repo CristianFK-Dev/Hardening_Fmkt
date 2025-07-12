@@ -65,9 +65,9 @@ main() {
   merge_rules
   log "Reglas guardadas en $RULE_FILE"
 
-  log "Recargando reglas con augenrules..."
-  augenrules --load
-  log "[SUCCESS] $ITEM_ID aplicado"
+  #log "Recargando reglas con augenrules..."
+  #augenrules --load
+  #log "[SUCCESS] $ITEM_ID aplicado"
 }
 
 main "$@"
