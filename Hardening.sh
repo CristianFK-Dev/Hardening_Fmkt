@@ -14,7 +14,7 @@ BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_FILE="${BASE_DIR}/Hardening.log"
 
 # Colores opcionales
-G="\e[32m"; R="\e[31m"; NC="\e[0m"
+G="\e[32m"; R="\e[31m"; NC="\e[0m" ; LIGHT_BLUE="\e[94m" ;
 
 ensure_root() { [[ $EUID -eq 0 ]] || { echo -e "${R}Ejecutar como root${NC}"; exit 1; }; }
 
@@ -59,12 +59,43 @@ ensure_root
 chmod_all
 echo -e "\nHardening wrapper listo."
 
-PS3=$'\nSeleccione una opción: '
-select opt in "Ejecutar" "Auditar" "Salir"; do
-  case $REPLY in
-    1) run_all "exec" ;;
-    2) run_all "audit" ;;
-    3) exit 0 ;;
-    *) echo "Opción inválida" ;;
-  esac
+# Función para mostrar la pantalla de bienvenida
+welcome_screen() {
+  clear
+  echo -e "${LIGHT_BLUE}"
+  cat << "EOF"
+     ███████╗███╗   ███╗ ██╗ ██╗████████╗
+     ██╔════╝████╗ ████║ ██║██╔╝╚══██╔══╝
+     █████╗  ██╔████╔██║ █████╔╝   ██║
+     ██╔══╝  ██║╚██╔╝██║ ██╔═██╗   ██║
+     ██╗     ██║ ╚═╝ ██║ ██║  ██╗  ██║
+     ╚═╝     ╚═╝     ╚═╝ ╚═╝  ╚═╝  ╚═╝
+
+    F I D E L I T Y   M A R K E T I N G
+                   2025
+
+********************************************
+* Authorized Access Only                   *
+* All activity is monitored and logged.    *
+* Disconnect immediately if unauthorized.  *
+********************************************
+EOF
+  echo -e "${NC}"
+}
+
+while true; do
+  welcome_screen
+  echo -e "Hardening wrapper listo.\n"
+
+  PS3=$'\nSeleccione una opción: '
+  select opt in "Ejecutar" "Auditar" "Salir"; do
+    case $REPLY in
+      1) run_all "exec"; break ;;
+      2) run_all "audit"; break ;;
+      3) exit 0 ;;
+      *) echo "Opción inválida" ;;
+    esac
+  done
+  echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###"
+  read -rp $'\nPresione Enter para volver al menú...'
 done

@@ -14,7 +14,7 @@ ITEM_ID="5.2.4"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
-BACKUP_DIR="/etc/sudoers/hardening_backups"
+BACKUP_DIR="/etc/hardening_backups"
 
 mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 
