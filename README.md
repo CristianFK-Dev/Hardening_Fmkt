@@ -39,12 +39,15 @@ Este script interactivo de Bash automatiza el proceso de hardening (fortalecimie
     
     *   **Salir:** Termina la ejecución del script.
 
-## Estructura del proyecto
+**Estructura del proyecto**
 
 El proyecto debe organizarse en directorios `Bloque*`, cada uno representando un conjunto de configuraciones de hardening segun los informes de Nessus.  Dentro de cada bloque, los scripts de hardening deben tener la extensión `.sh`.  Opcionalmente, cada bloque puede contener una carpeta `Log` para almacenar logs específicos del bloque.
 
-
 ---
+---
+
+# Justificaciones y mitigaciones
+
 
 **Justificación para omitir controles 1.1.2.x (particiones separadas)**
 
