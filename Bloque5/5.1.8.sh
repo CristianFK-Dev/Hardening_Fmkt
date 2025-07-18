@@ -1,14 +1,6 @@
 #!/bin/bash
 # =============================================================================
 # 5.1.8 – Ensure sshd DisableForwarding is enabled
-#
-# Descripción: Establece 'DisableForwarding yes' para desactivar el reenvío
-#              de X11, agent, TCP y StreamLocal.
-#
-# Uso      : sudo ./5.1.8.sh [--dry-run]
-#            --dry-run  → Muestra acciones sin aplicar cambios.
-# Registro : Bloque5/Log/{audit|exec}/<timestamp>_5.1.8.log
-# Retorno  : 0 en éxito, no-cero en error.
 # =============================================================================
 
 set -euo pipefail
@@ -16,6 +8,12 @@ set -euo pipefail
 ITEM_ID="5.1.8"
 SSH_CFG="/etc/ssh/sshd_config"
 BACKUP_DIR="/etc/ssh/hardening_backups"
+
+# Verificar si el archivo existe
+if [[ ! -f "${SSH_CFG}" ]]; then
+  echo "ERROR: No se encontró el archivo de configuración: ${SSH_CFG}" >&2
+  exit 1
+fi
 
 # --- ensure_root ---
 if [[ $EUID -ne 0 ]]; then
@@ -46,9 +44,10 @@ run() {
 }
 
 log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
+log "Verificando archivo de configuración: ${SSH_CFG}"
 
 # ---------- comprobar configuración actual ----------
-CURRENT_LINE=$(grep -inE '^[[:space:]]*DisableForwarding[[:space:]]+' "${SSH_CFG}" || true | head -1)
+CURRENT_LINE=$(grep -inE '^[[:space:]]*DisableForwarding[[:space:]]+' "${SSH_CFG}" || true | head -1 || true)
 if [[ -n "${CURRENT_LINE}" ]]; then
   LINE_NUM=${CURRENT_LINE%%:*}
   CURRENT_VALUE=$(echo "${CURRENT_LINE}" | awk '{print tolower($2)}')
@@ -82,7 +81,7 @@ if [[ -n "${LINE_NUM}" ]]; then
     log "[DRY-RUN] sed '${LINE_NUM}s/.*/DisableForwarding yes/' '${SSH_CFG}' > '${TMP}'"
   fi
 else
-  # La directiva no existe, la añadimos al final del archivo.
+  # Añadir al final
   log "La directiva 'DisableForwarding' no existe. Se añadirá al final."
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     {
