@@ -79,13 +79,9 @@ if [[ -n "${LINE_NUM}" ]]; then
   # Reemplazar valor existente
   run "sed '${LINE_NUM}s/.*/DisableForwarding yes/' \"${SSH_CFG}\" > \"${TMP}\""
 else
-  # Insertar antes del primer Include o al final
-  INC_LINE=$(grep -nE '^\s*Include\b' "${SSH_CFG}" | head -1 | cut -d: -f1 || true)
-  if [[ -n "${INC_LINE}" ]]; then
-    run "awk 'NR==${INC_LINE}{print \"DisableForwarding yes\"} {print}' \"${SSH_CFG}\" > \"${TMP}\""
-  else
-    run "{ cat \"${SSH_CFG}\"; echo; echo \"DisableForwarding yes\"; } > \"${TMP}\""
-  fi
+  # La directiva no existe, la añadimos al final del archivo.
+  log "La directiva 'DisableForwarding' no existe. Se añadirá al final."
+  run "{ cat \"${SSH_CFG}\"; echo; echo '# Added by hardening script'; echo 'DisableForwarding yes'; } > \"${TMP}\""
 fi
 
 # ---------- validar ----------
