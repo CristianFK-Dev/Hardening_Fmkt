@@ -51,7 +51,8 @@ log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
 
 # Verificar si el archivo existe
 if [[ ! -f "${SSH_CFG}" ]]; then
-  log "ERROR: No se encontró el archivo de configuración: ${SSH_CFG}"
+  # Escribimos al log individual Y a stderr para que el wrapper lo capture.
+  log "ERROR: No se encontró el archivo de configuración: ${SSH_CFG}" >&2
   exit 1
 fi
 
