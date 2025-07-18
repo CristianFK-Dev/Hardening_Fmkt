@@ -47,10 +47,10 @@ DRY_RUN=0
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 ensure_root
-log "=== Remediación ${ITEM_ID}: Eliminar NOPASSWD (excluyendo root, admin, nessus) ==="
+log "=== Remediación ${ITEM_ID}: Eliminar NOPASSWD (excluyendo root, admin, nessusauth) ==="
 
 PATTERN='^[[:space:]]*[^#].*NOPASSWD'
-EXCLUDE='^[[:space:]]*(root|admin|nessus)[[:space:]].*NOPASSWD'
+EXCLUDE='^[[:space:]]*(root|admin|nessus|nessusauth)[[:space:]].*NOPASSWD'
 TAG='# DISABLED_BY_HARDENING'
 
 # Archivos objetivo
@@ -63,37 +63,36 @@ MODIFIED=0
 for FILE in "${TARGET_FILES[@]}"; do
   [[ -r "$FILE" ]] || { log "Omitiendo $FILE: no legible"; continue; }
 
-  if grep -Eq "$PATTERN" "$FILE"; then
-    # Ver si realmente hay algo que cambiar (que no sea root/admin/nessus)
-    if grep -Eq "$PATTERN" "$FILE" && ! grep -Eq "$EXCLUDE" "$FILE"; then
-      MODIFIED=1
-      BACKUP="${BACKUP_DIR}/$(basename "$FILE").$(date +%Y%m%d-%H%M%S)"
-      run "cp --preserve=mode,ownership,timestamps '$FILE' '$BACKUP'"
+  # Comprobar si hay líneas con NOPASSWD que NO estén en la lista de exclusión.
+  # `grep ... | grep -qv ...` devuelve un exit code 0 si encuentra líneas para modificar.
+  if grep -E "$PATTERN" "$FILE" | grep -qvE "$EXCLUDE"; then
+    MODIFIED=1
 
-      TMP=$(mktemp)
-      run "awk -v tag='$TAG' -v today=\"$(date +%F)\" -v exclude=\"$EXCLUDE\" '
-        $0 ~ exclude {print; next}
-        $0 ~ /NOPASSWD/ && $0 !~ tag {print tag, today, $0; next}
-        {print}
-      ' \"$FILE\" > \"$TMP\""
+    BACKUP="${BACKUP_DIR}/$(basename "$FILE").$(date +%Y%m%d-%H%M%S)"
+    run "cp --preserve=mode,ownership,timestamps '$FILE' '$BACKUP'"
 
-      run "visudo -cf \"$TMP\""
-      if [[ $DRY_RUN -eq 0 ]]; then
-        mv "$TMP" "$FILE"
-        log "→ NOPASSWD deshabilitado en $FILE (root/admin/nessus excluidos)"
-      else
-        log "[DRY-RUN] Cambios no aplicados en $FILE"
-        rm -f "$TMP"
-      fi
+    TMP=$(mktemp)
+    log "Procesando $FILE → $TMP"
+    awk -v tag="$TAG" -v today="$(date +%F)" -v exclude="$EXCLUDE" -v pattern="$PATTERN" '
+      $0 ~ exclude {print; next}
+      $0 ~ pattern && $0 !~ tag {print tag, today, $0; next}
+      {print}
+    ' "$FILE" > "$TMP"
+
+    run "visudo -cf '$TMP'"
+
+    if [[ $DRY_RUN -eq 0 ]]; then
+      mv "$TMP" "$FILE"
+      log "→ NOPASSWD deshabilitado en $FILE (excepciones mantenidas)"
     else
-      log "Solo se encontraron entradas permitidas (root/admin/nessus) en $FILE"
+      log "[DRY-RUN] Cambios no aplicados en $FILE"
+      rm -f "$TMP"
     fi
   else
-    log "No se encontró NOPASSWD en $FILE"
+    log "No se encontraron entradas NOPASSWD para modificar en $FILE"
   fi
 done
 
 [[ $MODIFIED -eq 0 ]] && log "Sistema ya conforme. Sin cambios aplicados."
-
 log "== Remediación ${ITEM_ID} completada =="
 exit 0

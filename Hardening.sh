@@ -12,7 +12,7 @@ BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_FILE="${BASE_DIR}/Hardening.log"
 
 # Colores opcionales
-G="\e[32m"; R="\e[31m"; NC="\e[0m"; LIGHT_BLUE="\e[94m";
+G="\e[32m"; R="\e[31m"; Y="\e[33m"; NC="\e[0m"; LIGHT_BLUE="\e[94m";
 
 ensure_root() { [[ $EUID -eq 0 ]] || { echo -e "${R}Ejecutar como root${NC}"; exit 1; }; }
 
@@ -36,17 +36,25 @@ run_all() {
       [[ -e $script ]] || continue
       local sname; sname="$(basename "$script")"
 
-      local out err
-      out=$(mktemp); err=$(mktemp)
-      if "$script" $flag >"$out" 2>"$err"; then
-        log_line "${bname} | ${sname} | OK |"
-        echo -e "${G}${bname}/${sname} OK${NC}"
-      else
-        local msg; msg=$(head -1 "$err")
+      local output
+      # Captura stdout y stderr, y comprueba el código de salida al mismo tiempo
+      if ! output=$("$script" "$flag" 2>&1); then
+        # El script falló de verdad (código de salida != 0)
+        local msg; msg=$(echo "$output" | head -n 1)
         log_line "${bname} | ${sname} | FAIL | ${msg}"
         echo -e "${R}${bname}/${sname} FAIL${NC}"
+      else
+        # El script se ejecutó correctamente (código de salida 0)
+        if [[ $mode == "audit" ]] && [[ "$output" == *"[DRY-RUN]"* ]]; then
+          # Modo auditoría y el script encontró algo que cambiar
+          log_line "${bname} | ${sname} | AUDIT: PENDING |"
+          echo -e "${Y}${bname}/${sname} AUDIT: PENDING${NC}"
+        else
+          # Modo ejecución, o modo auditoría sin cambios necesarios
+          log_line "${bname} | ${sname} | OK |"
+          echo -e "${G}${bname}/${sname} OK${NC}"
+        fi
       fi
-      rm -f "$out" "$err"
     done
   done
 }
