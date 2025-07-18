@@ -32,7 +32,7 @@ if [[ -z "$UID_MIN" ]]; then log "[ERR] UID_MIN no encontrado"; exit 1; fi
 
 [[ $DRY_RUN -eq 0 ]] && { touch "$RULE_FILE"; chmod 640 "$RULE_FILE"; }
 
-if grep -Fxq "$RULE" "$RULE_FILE" 2>/dev/null; then
+if grep -hFxq -- "$RULE" /etc/audit/rules.d/*.rules 2>/dev/null; then
   log "[OK] Regla ya presente"
 else
   if [[ $DRY_RUN -eq 1 ]]; then

@@ -33,8 +33,8 @@ ensure_root() {
 }
 
 rule_exists() {
-  local rule="$1"
-  grep -Fxq "$rule" "$RULE_FILE" 2>/dev/null
+  local rule_to_find="$1"
+  grep -hFxq -- "$rule_to_find" /etc/audit/rules.d/*.rules 2>/dev/null
 }
 
 add_rule() {

@@ -26,7 +26,7 @@ mkdir -p "$LOG_DIR"; :> "$LOG_FILE"; log "Run $SCRIPT_NAME – $ITEM_ID"
 ensure_root
 
 add_rule() {
-  if grep -Fxq "$RULE" "$FINAL_RULE_FILE" 2>/dev/null; then
+  if grep -hFxq -- "$RULE" /etc/audit/rules.d/*.rules 2>/dev/null; then
     log "[OK] Regla -e 2 ya presente"
   else
     if [[ $DRY_RUN -eq 1 ]]; then

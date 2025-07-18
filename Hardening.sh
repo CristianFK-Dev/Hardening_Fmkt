@@ -93,7 +93,8 @@ run_all() {
 }
 
 ver_log_general() {
-  echo -e "${LIGHT_BLUE}\n=== Mostrando log general: Hardening.log ===${NC}"
+  clear
+  print_menu_header "LOG GENERAL"
   if [[ -f "$LOG_FILE" ]]; then
     less "$LOG_FILE"
   else
@@ -102,7 +103,8 @@ ver_log_general() {
 }
 
 ver_logs_por_bloque() {
-    echo -e "${LIGHT_BLUE}\n=== Ver logs por bloque ===${NC}"
+    clear
+    print_menu_header "LOGS POR BLOQUE"
 
     local bloques=()
     for dir in "$BASE_DIR"/Bloque*/; do
@@ -114,26 +116,31 @@ ver_logs_por_bloque() {
         return
     fi
 
-    PS3=$'\nSeleccione un bloque (o 0 para volver): '
+    PS3=$'\nSeleccione un bloque (o 0 para volver al menú principal): '
     select bloque in "${bloques[@]}"; do
         if [[ -z "$bloque" ]]; then echo "Volviendo..."; return; fi
 
+        clear
+        print_menu_header "TIPO DE LOG - $bloque"
         local log_base_dir="$BASE_DIR/$bloque/Log"
-        PS3=$'\nSeleccione el tipo de log (o 0 para volver): '
+        PS3=$'\nSeleccione el tipo de log (o 0 para volver a la selección de bloque): '
         select log_type in "Auditoría" "Ejecución"; do
             if [[ -z "$log_type" ]]; then echo "Volviendo..."; break; fi
 
             local log_subdir
             [[ "$log_type" == "Auditoría" ]] && log_subdir="audit" || log_subdir="exec"
             local log_dir="${log_base_dir}/${log_subdir}"
-
+            
+            clear
+            print_menu_header "LOGS DE ${log_type^^} - $bloque"
+            
             if [[ ! -d "$log_dir" ]] || [[ -z "$(ls -A "$log_dir")" ]]; then
                 echo -e "${R}No se encontraron logs de '$log_type' en $bloque.${NC}"
                 break
             fi
 
             local log_files=("$log_dir"/*.log)
-            PS3=$'\nSeleccione un log para ver (o 0 para volver): '
+            PS3=$'\nSeleccione un log para ver (o 0 para volver a la selección de tipo): '
             select log_file in "${log_files[@]}"; do
                 if [[ -z "$log_file" ]]; then echo "Volviendo..."; break; fi
                 echo -e "${LIGHT_BLUE}\nMostrando: $(basename "$log_file")${NC}"
@@ -170,6 +177,17 @@ welcome_screen() {
 ********************************************
 EOF
   echo -e "${NC}"
+}
+
+print_menu_header() {
+    local title=" $1 "
+    local width=42
+    local padding=$(( (width - ${#title}) / 2 ))
+    local remainder=$(( (width - ${#title}) % 2 ))
+    
+    echo -e "\n${LIGHT_BLUE}********************************************"
+    printf "*%*s%s%*s*\n" "$padding" "" "$title" "$((padding + remainder))" ""
+    echo -e "********************************************${NC}\n"
 }
 
 main_menu() {

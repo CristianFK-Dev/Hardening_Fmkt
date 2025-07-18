@@ -26,7 +26,10 @@ DRY_RUN=0
 
 log() { printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
 ensure_root() { [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
-rule_present() { local r="$1"; grep -Fxq "$r" "$RULE_FILE" 2>/dev/null; }
+rule_present() {
+  local rule_to_find="$1"
+  grep -hFxq -- "$rule_to_find" /etc/audit/rules.d/*.rules 2>/dev/null
+}
 
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
