@@ -24,8 +24,8 @@ log() {
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "→ Re-ejecutando con sudo..." >&2
-    exec sudo "$0" "$@"
+    echo "ERROR: Este script debe ser ejecutado como root." >&2
+    exit 1
   fi
 }
 

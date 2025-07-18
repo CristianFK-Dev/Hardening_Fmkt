@@ -29,7 +29,7 @@ DRY_RUN=0
 mkdir -p "$LOG_DIR"
 
 log() {
-  printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"
+  printf '[%s] %s\n' "$(date +'%F %T')" "$*" | tee -a "$LOG_FILE"
 }
 
 ensure_root() {

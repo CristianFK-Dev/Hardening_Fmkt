@@ -12,7 +12,7 @@ LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 ensure_root() { [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
-log() { printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
+log() { printf '[%s] %s\n' "$(date +'%F %T')" "$*" | tee -a "$LOG_FILE"; }
 
 GRUB_FILE="/etc/default/grub"
 BACKUP="${GRUB_FILE}.bak.$(date +%s)"

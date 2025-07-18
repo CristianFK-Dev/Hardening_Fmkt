@@ -25,7 +25,7 @@ if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
 fi
 
 log() {
-  printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$LOG_FILE"
+  printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
 
 ensure_root() {

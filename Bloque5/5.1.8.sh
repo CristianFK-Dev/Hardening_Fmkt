@@ -19,10 +19,10 @@
     LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log"
     mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 
-    # --- autoelevación ---
+    # --- ensure_root ---
     if [[ $EUID -ne 0 ]]; then
-      echo "→ No soy root, re-ejecutando con sudo…" >&2
-      exec sudo --preserve-env=PATH "$0" "$@"
+      echo "ERROR: Este script debe ser ejecutado como root." >&2
+      exit 1
     fi
 
     # ---------- parámetros ----------

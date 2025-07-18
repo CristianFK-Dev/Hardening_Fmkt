@@ -10,7 +10,10 @@
     BACKUP_DIR="/var/backups/login_defs"
     mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 
-    [[ $EUID -ne 0 ]] && exec sudo --preserve-env=PATH "$0" "$@"
+    if [[ $EUID -ne 0 ]]; then
+      echo "ERROR: Este script debe ser ejecutado como root." >&2
+      exit 1
+    fi
 
     DRY_RUN=0; [[ $# -gt 0 && $1 == "--dry-run" ]] && DRY_RUN=1
     LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
