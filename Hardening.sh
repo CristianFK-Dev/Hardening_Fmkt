@@ -56,8 +56,7 @@ run_all() {
     [[ -d $bloque ]] || continue
     local bname; bname="$(basename "$bloque")"
 
-    for script in "$bloque"/*.sh; do
-      [[ -e $script ]] || continue
+    find "$bloque" -maxdepth 1 -type f -name '*.sh' | sort -V | while IFS= read -r script; do
       local sname; sname="$(basename "$script")"
 
       # Omitir scripts en la lista negra de auditoría
