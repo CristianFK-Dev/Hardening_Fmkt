@@ -1,5 +1,4 @@
-\
-    #!/bin/bash
+#!/bin/bash
     # =============================================================================
     # 5.1.8 – Ensure sshd DisableForwarding is enabled
     # Establece DisableForwarding yes para desactivar X11, agent, TCP y StreamLocal forwarding.
