@@ -2,8 +2,8 @@
 # =============================================================================
 # 5.1.8 – Ensure sshd DisableForwarding is enabled
 #
-# Descripción: Establece DisableForwarding yes para desactivar X11, agent,
-#              TCP y StreamLocal forwarding.
+# Descripción: Establece 'DisableForwarding yes' para desactivar el reenvío
+#              de X11, agent, TCP y StreamLocal.
 #
 # Uso      : sudo ./5.1.8.sh [--dry-run]
 #            --dry-run  → Muestra acciones sin aplicar cambios.
@@ -36,7 +36,7 @@ LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 log() {
-  printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}";
+  printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"
 }
 run() {
   if [[ "${DRY_RUN}" -eq 1 ]]; then
@@ -50,7 +50,7 @@ run() {
 log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
 
 # ---------- comprobar configuración actual ----------
-CURRENT_LINE=$(grep -inE '^\s*DisableForwarding\s+' "${SSH_CFG}" || true | head -1)
+CURRENT_LINE=$(grep -inE '^[[:space:]]*DisableForwarding[[:space:]]+' "${SSH_CFG}" || true | head -1)
 if [[ -n "${CURRENT_LINE}" ]]; then
   LINE_NUM=${CURRENT_LINE%%:*}
   CURRENT_VALUE=$(echo "${CURRENT_LINE}" | awk '{print tolower($2)}')
@@ -60,7 +60,7 @@ else
 fi
 
 if [[ "${CURRENT_VALUE}" == "yes" ]]; then
-  log "DisableForwarding ya está en 'yes' (línea ${LINE_NUM}). Nada que hacer."
+  log "[OK] DisableForwarding ya está en 'yes' (línea ${LINE_NUM}). Nada que hacer."
   exit 0
 fi
 
@@ -77,11 +77,12 @@ TMP=$(mktemp)
 
 if [[ -n "${LINE_NUM}" ]]; then
   # Reemplazar valor existente
+  log "La directiva 'DisableForwarding' existe con un valor incorrecto. Se corregirá."
   run "sed '${LINE_NUM}s/.*/DisableForwarding yes/' \"${SSH_CFG}\" > \"${TMP}\""
 else
   # La directiva no existe, la añadimos al final del archivo.
   log "La directiva 'DisableForwarding' no existe. Se añadirá al final."
-  run "{ cat \"${SSH_CFG}\"; echo; echo '# Added by hardening script'; echo 'DisableForwarding yes'; } > \"${TMP}\""
+  run "{ cat \"${SSH_CFG}\"; echo; echo '# Added by hardening script ${ITEM_ID}'; echo 'DisableForwarding yes'; } > \"${TMP}\""
 fi
 
 # ---------- validar ----------
@@ -95,7 +96,7 @@ if [[ "${DRY_RUN}" -eq 0 ]]; then
   else
     run "service ssh reload"
   fi
-  log "sshd recargado."
+  log "Servicio sshd recargado."
 else
   log "[DRY-RUN] No se aplicaron cambios a ${SSH_CFG}"
   rm -f "${TMP}"
