@@ -84,8 +84,7 @@
       if [[ -n "${INC_LINE}" ]]; then
         run "awk 'NR==${INC_LINE}{print \"DisableForwarding yes\"} {print}' \"${SSH_CFG}\" > \"${TMP}\""
       else
-        run "cat \"${SSH_CFG}\" > \"${TMP}\""
-        echo "DisableForwarding yes" >> "${TMP}"
+        run "{ cat \"${SSH_CFG}\"; echo; echo \"DisableForwarding yes\"; } > \"${TMP}\""
       fi
     fi
 
