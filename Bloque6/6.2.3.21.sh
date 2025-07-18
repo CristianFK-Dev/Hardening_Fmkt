@@ -24,8 +24,8 @@ DRY_RUN=0
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "→ Re-ejecutando con sudo para privilegios de root..." >&2
-    exec sudo --preserve-env=PATH "$0" "$@"
+    echo "ERROR: Este script debe ser ejecutado como root." >&2
+    exit 1
   fi
 }
 

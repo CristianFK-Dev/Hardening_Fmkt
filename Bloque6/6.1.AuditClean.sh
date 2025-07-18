@@ -34,8 +34,9 @@ log() {
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "→ No soy root, re-ejecutando con sudo…" >&2
-    exec sudo "$0" "$@"
+    # Este script debe ser llamado por un wrapper que ya es root.
+    echo "ERROR: Este script debe ser ejecutado como root." >&2
+    exit 1
   fi
 }
 

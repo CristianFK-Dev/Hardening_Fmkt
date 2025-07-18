@@ -21,8 +21,8 @@ mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 ### Funciones auxiliares #######################################################
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "→ Re-ejecutando con sudo para privilegios de root..."
-    exec sudo --preserve-env=PATH "$0" "$@"
+    echo "ERROR: Este script debe ser ejecutado como root." >&2
+    exit 1
   fi
 }
 

@@ -24,9 +24,14 @@ chmod_all() {
 }
 
 run_all() {
-  local mode="$1"            # exec  | audit
-  local flag=""
-  [[ $mode == "audit" ]] && flag="--dry-run"
+  local mode="$1" # exec | audit | exec_force
+
+  # Lista blanca de scripts que pueden recibir --force
+  local FORCE_SCRIPTS=(
+    "1.1.1.6.sh"
+    "1.1.1.7.sh"
+    "1.1.1.8.sh"
+  )
 
   # Agrega entrada global de auditoría o ejecución al log general
   local timestamp; timestamp="$(date '+%F %T')"
@@ -44,9 +49,21 @@ run_all() {
       [[ -e $script ]] || continue
       local sname; sname="$(basename "$script")"
 
+      # Determinar los argumentos para el script individual
+      local script_args=""
+      if [[ $mode == "audit" ]]; then
+        script_args="--dry-run"
+      elif [[ $mode == "exec_force" ]]; then
+        # Comprobar si el script está en la lista blanca para forzar
+        if [[ " ${FORCE_SCRIPTS[*]} " =~ " ${sname} " ]]; then
+          script_args="--force"
+        fi
+      fi
+
       local output
       # Captura stdout y stderr, y comprueba el código de salida al mismo tiempo
-      if ! output=$("$script" "$flag" 2>&1); then
+      # Pasamos los argumentos en $script_args
+      if ! output=$("$script" $script_args 2>&1); then
         # El script falló de verdad (código de salida != 0)
         local msg; msg=$(echo "$output" | head -n 1)
         log_line "${bname} | ${sname} | FAIL | ${msg}"
@@ -161,7 +178,7 @@ while true; do
   echo -e "Hardening wrapper listo.\n"
 
   PS3=$'\nSeleccione una opción (Ctrl+C para salir) : '
-  select opt in "Ejecutar" "Auditar" "Ver log general" "Ver logs por bloque" "Salir"; do
+  select opt in "Ejecutar" "Auditar" "Ejecutar con --force (Peligroso)" "Ver log general" "Ver logs por bloque" "Salir"; do
     case $REPLY in
       1)
         run_all "exec"
@@ -171,12 +188,23 @@ while true; do
         run_all "audit"
         break ;;
       3)
-        ver_log_general
+        echo -e "${R}ADVERTENCIA: Esta opción aplicará --force a scripts específicos."
+        echo -e "Esto puede deshabilitar servicios críticos (Docker, Snap, etc.).${NC}"
+        read -rp "¿Está seguro de que desea continuar? (s/N): " confirm
+        if [[ ${confirm,,} == "s" ]]; then
+          run_all "exec_force"
+          echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###${NC}"
+        else
+          echo "Operación cancelada."
+        fi
         break ;;
       4)
-        ver_logs_por_bloque
+        ver_log_general
         break ;;
       5)
+        ver_logs_por_bloque
+        break ;;
+      6)
         exit 0 ;;
       *)
         echo "Opción inválida" ;;
