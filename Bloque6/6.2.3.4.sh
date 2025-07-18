@@ -27,7 +27,11 @@ DRY_RUN=0
 
 log(){ printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
 ensure_root(){ [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
-rule_present(){ local r="$1"; grep -Fxq "$r" "$RULE_FILE" 2>/dev/null; }
+rule_present(){
+  # Busca la regla en todos los archivos .rules para evitar duplicados
+  local r="$1"
+  grep -hFxq -- "$r" /etc/audit/rules.d/*.rules 2>/dev/null
+}
 
 mkdir -p "$LOG_DIR"; :>"$LOG_FILE"; log "Run $SCRIPT_NAME"
 ensure_root
@@ -35,7 +39,7 @@ ensure_root
 
 for rule in "${RULES[@]}"; do
   if rule_present "$rule"; then
-    log "[OK] Regla ya presente"
+    log "[OK] Regla ya presente en la configuración: $rule"
   else
     if [[ $DRY_RUN -eq 1 ]]; then
       log "[DRY-RUN] Añadiría: $rule"
