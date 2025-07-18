@@ -39,11 +39,9 @@ log() {
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"
 }
 run() {
-  if [[ "${DRY_RUN}" -eq 1 ]]; then
-    log "[DRY-RUN] $*"
-  else
-    log "[EXEC]   $*"
-    eval "$@"
+  log "[${DRY_RUN:-0}] $*"
+  if [[ "${DRY_RUN}" -eq 0 ]]; then
+    "$@"
   fi
 }
 
@@ -78,23 +76,43 @@ TMP=$(mktemp)
 if [[ -n "${LINE_NUM}" ]]; then
   # Reemplazar valor existente
   log "La directiva 'DisableForwarding' existe con un valor incorrecto. Se corregirá."
-  run "sed '${LINE_NUM}s/.*/DisableForwarding yes/' \"${SSH_CFG}\" > \"${TMP}\""
+  if [[ "${DRY_RUN}" -eq 0 ]]; then
+    sed "${LINE_NUM}s/.*/DisableForwarding yes/" "${SSH_CFG}" > "${TMP}"
+  else
+    log "[DRY-RUN] sed '${LINE_NUM}s/.*/DisableForwarding yes/' '${SSH_CFG}' > '${TMP}'"
+  fi
 else
   # La directiva no existe, la añadimos al final del archivo.
   log "La directiva 'DisableForwarding' no existe. Se añadirá al final."
-  run "{ cat \"${SSH_CFG}\"; echo; echo '# Added by hardening script ${ITEM_ID}'; echo 'DisableForwarding yes'; } > \"${TMP}\""
+  if [[ "${DRY_RUN}" -eq 0 ]]; then
+    {
+      cat "${SSH_CFG}"
+      echo
+      echo "# Added by hardening script ${ITEM_ID}"
+      echo "DisableForwarding yes"
+    } > "${TMP}"
+  else
+    log "[DRY-RUN] Añadir directiva al final de ${SSH_CFG} > ${TMP}"
+  fi
 fi
 
 # ---------- validar ----------
-run "sshd -t -f \"${TMP}\""
+if [[ "${DRY_RUN}" -eq 0 ]]; then
+  sshd -t -f "${TMP}"
+  log "Validación de sintaxis sshd OK."
+else
+  log "[DRY-RUN] Validaría sshd con archivo temporal: ${TMP}"
+fi
 
+# ---------- aplicar ----------
 if [[ "${DRY_RUN}" -eq 0 ]]; then
   mv "${TMP}" "${SSH_CFG}"
   log "Archivo ${SSH_CFG} actualizado."
+
   if command -v systemctl &>/dev/null; then
-    run "systemctl reload sshd"
+    systemctl reload sshd
   else
-    run "service ssh reload"
+    service ssh reload
   fi
   log "Servicio sshd recargado."
 else
