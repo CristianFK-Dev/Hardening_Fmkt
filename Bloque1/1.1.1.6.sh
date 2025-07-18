@@ -64,20 +64,18 @@ fi
 # ---------- /etc/modprobe.d ----------
 need_update=0
 if [[ -f "${CONF_FILE}" ]]; then
-  grep -qE '^\s*install\s+('${MOD_NAME}'|'"${ALIAS_NAME}"')\s+/bin/false' "${CONF_FILE}" || need_update=1
-  grep -qE '^\s*blacklist\s+('${MOD_NAME}'|'"${ALIAS_NAME}"')\s*$'          "${CONF_FILE}" || need_update=1
+  grep -qE "^\s*install\s+${MOD_NAME}\s+/bin/false" "${CONF_FILE}" || need_update=1
+  grep -qE "^\s*blacklist\s+${MOD_NAME}\s*$"       "${CONF_FILE}" || need_update=1
 else
   need_update=1
 fi
 
 if [[ "${need_update}" -eq 1 ]]; then
-  log "Actualizando ${CONF_FILE}"
+  log "Actualizando ${CONF_FILE} para deshabilitar ${MOD_NAME}"
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     {
       echo "install ${MOD_NAME} /bin/false"
-      echo "install ${ALIAS_NAME} /bin/false"
       echo "blacklist ${MOD_NAME}"
-      echo "blacklist ${ALIAS_NAME}"
     } > "${CONF_FILE}"
     chmod 644 "${CONF_FILE}"
   else
