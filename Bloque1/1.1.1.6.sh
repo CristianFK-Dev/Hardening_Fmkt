@@ -21,9 +21,11 @@ CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
 # ---------- parámetros ----------
 DRY_RUN=0
 FORCE=0
+LOG_SUBDIR="exec" # Por defecto, logs de ejecución
+
 for arg in "$@"; do
   case "$arg" in
-    --dry-run) DRY_RUN=1 ;;
+    --dry-run) DRY_RUN=1; LOG_SUBDIR="audit" ;;
     --force)   FORCE=1   ;;
     *) echo "Uso: $0 [--dry-run] [--force]" >&2; exit 1 ;;
   esac
@@ -31,10 +33,14 @@ done
 
 # ---------- log ----------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${SCRIPT_DIR}/Log"
+LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
-log() { echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}"; }
+log() {
+    # Asegurarse de que el directorio de log existe justo antes de escribir
+    mkdir -p "$(dirname "${LOG_FILE}")"
+    echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
+}
 run() {
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     log "[DRY-RUN] $*"

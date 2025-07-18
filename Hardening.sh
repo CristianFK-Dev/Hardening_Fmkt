@@ -102,48 +102,51 @@ ver_log_general() {
 }
 
 ver_logs_por_bloque() {
-  echo -e "${LIGHT_BLUE}\n=== Ver logs por bloque ===${NC}"
+    echo -e "${LIGHT_BLUE}\n=== Ver logs por bloque ===${NC}"
 
-  local bloques=()
-  for logdir in "$BASE_DIR"/Bloque*/Log; do
-    [[ -d "$logdir" ]] && bloques+=("$(basename "$(dirname "$logdir")")")
-  done
-
-  if [[ ${#bloques[@]} -eq 0 ]]; then
-    echo -e "${R}No se encontraron bloques con carpeta Log.${NC}"
-    return
-  fi
-
-  PS3=$'\nSeleccione un bloque para ver sus logs (o 0 para volver): '
-  select bloque in "${bloques[@]}"; do
-    if [[ -z "$bloque" ]]; then
-      echo "Volviendo..."
-      return
-    fi
-
-    local log_dir="$BASE_DIR/$bloque/Log"
-    local log_files=("$log_dir"/*.log)
-
-    if [[ ! -e "${log_files[0]}" ]]; then
-      echo -e "${R}No hay logs en ${log_dir}.${NC}"
-      return
-    fi
-
-    echo -e "${LIGHT_BLUE}\nLogs disponibles en ${bloque}/Log:${NC}"
-    PS3=$'\nSeleccione un log para ver (o 0 para volver): '
-    select log_file in "${log_files[@]}"; do
-      if [[ -z "$log_file" ]]; then
-        echo "Volviendo..."
-        return
-      fi
-
-      echo -e "${LIGHT_BLUE}\nMostrando: $log_file${NC}"
-      less "$log_file"
-      break
+    local bloques=()
+    for dir in "$BASE_DIR"/Bloque*/; do
+        [[ -d "$dir" ]] && bloques+=("$(basename "$dir")")
     done
 
-    break
-  done
+    if [[ ${#bloques[@]} -eq 0 ]]; then
+        echo -e "${R}No se encontraron directorios de Bloque.${NC}"
+        return
+    fi
+
+    PS3=$'\nSeleccione un bloque (o 0 para volver): '
+    select bloque in "${bloques[@]}"; do
+        if [[ -z "$bloque" ]]; then echo "Volviendo..."; return; fi
+
+        local log_base_dir="$BASE_DIR/$bloque/Log"
+        PS3=$'\nSeleccione el tipo de log (o 0 para volver): '
+        select log_type in "Auditoría" "Ejecución"; do
+            if [[ -z "$log_type" ]]; then echo "Volviendo..."; break; fi
+
+            local log_subdir
+            [[ "$log_type" == "Auditoría" ]] && log_subdir="audit" || log_subdir="exec"
+            local log_dir="${log_base_dir}/${log_subdir}"
+
+            if [[ ! -d "$log_dir" ]] || [[ -z "$(ls -A "$log_dir")" ]]; then
+                echo -e "${R}No se encontraron logs de '$log_type' en $bloque.${NC}"
+                break
+            fi
+
+            local log_files=("$log_dir"/*.log)
+            PS3=$'\nSeleccione un log para ver (o 0 para volver): '
+            select log_file in "${log_files[@]}"; do
+                if [[ -z "$log_file" ]]; then echo "Volviendo..."; break; fi
+                echo -e "${LIGHT_BLUE}\nMostrando: $(basename "$log_file")${NC}"
+                less "$log_file"
+                # Vuelve al menú de tipo de log después de ver uno
+                break
+            done
+            # Vuelve al menú de bloques después de salir del submenú de logs
+            break
+        done
+        # Vuelve al menú principal después de salir del menú de bloques
+        break
+    done
 }
 
 welcome_screen() {
@@ -169,47 +172,57 @@ EOF
   echo -e "${NC}"
 }
 
+main_menu() {
+    echo -e "Menú Principal:\n"
+    echo -e "  1. Ejecutar"
+    echo -e "  ${Y}2. Auditar${NC}"
+    echo -e "  ${R}3. Ejecutar con --force (Peligroso)${NC}"
+    echo -e "  4. Ver log general"
+    echo -e "  5. Ver logs por bloque"
+    echo -e "  6. Salir"
+}
+
 ### MAIN LOOP ###
 ensure_root
 chmod_all
 
 while true; do
   welcome_screen
-  echo -e "Hardening wrapper listo.\n"
+  main_menu
 
-  PS3=$'\nSeleccione una opción (Ctrl+C para salir) : '
-  select opt in "Ejecutar" "Auditar" "Ejecutar con --force (Peligroso)" "Ver log general" "Ver logs por bloque" "Salir"; do
-    case $REPLY in
-      1)
+  read -rp $'\nSeleccione una opción (1-6): ' choice
+  echo "" # Newline for clarity
+
+  case "$choice" in
+    1)
         run_all "exec"
         echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###${NC}"
-        break ;;
-      2)
+        ;;
+    2)
         run_all "audit"
-        break ;;
-      3)
+        ;;
+    3)
         echo -e "${R}ADVERTENCIA: Esta opción aplicará --force a scripts específicos."
         echo -e "Esto puede deshabilitar servicios críticos (Docker, Snap, etc.).${NC}"
         read -rp "¿Está seguro de que desea continuar? (s/N): " confirm
         if [[ ${confirm,,} == "s" ]]; then
-          run_all "exec_force"
-          echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###${NC}"
+            run_all "exec_force"
+            echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###${NC}"
         else
-          echo "Operación cancelada."
+            echo "Operación cancelada."
         fi
-        break ;;
-      4)
+        ;;
+    4)
         ver_log_general
-        break ;;
-      5)
+        ;;
+    5)
         ver_logs_por_bloque
-        break ;;
-      6)
+        ;;
+    6)
         exit 0 ;;
-      *)
+    *)
         echo "Opción inválida" ;;
-    esac
-  done
+  esac
 
   read -rp $'\nPresione Enter para volver al menú...'
 done

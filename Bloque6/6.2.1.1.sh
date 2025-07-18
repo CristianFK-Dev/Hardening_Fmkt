@@ -13,20 +13,22 @@ ITEM_ID="6.2.1.1"
 ITEM_DESC="Ensure auditd packages are installed"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
-LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 # -----------------------------------------------------------------------------
 # Parámetros
 # -----------------------------------------------------------------------------
 DRY_RUN=0
+LOG_SUBDIR="exec"
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
+  LOG_SUBDIR="audit"
 fi
 
 # -----------------------------------------------------------------------------
 # Funciones
 # -----------------------------------------------------------------------------
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }

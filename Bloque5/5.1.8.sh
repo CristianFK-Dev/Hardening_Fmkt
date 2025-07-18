@@ -16,8 +16,6 @@
     ITEM_ID="5.1.8"
     SSH_CFG="/etc/ssh/sshd_config"
     BACKUP_DIR="/etc/ssh/hardening_backups"
-    LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log"
-    mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 
     # --- ensure_root ---
     if [[ $EUID -ne 0 ]]; then
@@ -27,11 +25,19 @@
 
     # ---------- parámetros ----------
     DRY_RUN=0
-    [[ $# -gt 0 && $1 == "--dry-run" ]] && DRY_RUN=1
+    LOG_SUBDIR="exec"
+    if [[ ${1:-} == "--dry-run" ]]; then
+        DRY_RUN=1
+        LOG_SUBDIR="audit"
+    fi
 
     # ---------- logging ----------
+    LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log/${LOG_SUBDIR}"
+    mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
     LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
-    log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
+    log() {
+        printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}";
+    }
     run() {
       if [[ ${DRY_RUN} -eq 1 ]]; then
         log "[DRY-RUN] $*"
