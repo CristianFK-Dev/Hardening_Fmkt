@@ -28,6 +28,14 @@ run_all() {
   local flag=""
   [[ $mode == "audit" ]] && flag="--dry-run"
 
+  # Agrega entrada global de auditoría o ejecución al log general
+  local timestamp; timestamp="$(date '+%F %T')"
+  if [[ $mode == "audit" ]]; then
+    log_line "===== [AUDIT MODE] Inicio de auditoría: $timestamp ====="
+  else
+    log_line "===== [EXEC MODE] Inicio de ejecución: $timestamp ====="
+  fi
+
   for bloque in "$BASE_DIR"/Bloque*/; do
     [[ -d $bloque ]] || continue
     local bname; bname="$(basename "$bloque")"
@@ -57,6 +65,14 @@ run_all() {
       fi
     done
   done
+
+  # Cierre del bloque de auditoría o ejecución
+  timestamp="$(date '+%F %T')"
+  if [[ $mode == "audit" ]]; then
+    log_line "===== [AUDIT MODE] Fin de auditoría: $timestamp ====="
+  else
+    log_line "===== [EXEC MODE] Fin de ejecución: $timestamp ====="
+  fi
 }
 
 ver_log_general() {
@@ -144,7 +160,7 @@ while true; do
   welcome_screen
   echo -e "Hardening wrapper listo.\n"
 
-  PS3=$'\nSeleccione una opción: '
+  PS3=$'\nSeleccione una opción (Ctrl+C para salir) : '
   select opt in "Ejecutar" "Auditar" "Ver log general" "Ver logs por bloque" "Salir"; do
     case $REPLY in
       1)
