@@ -33,6 +33,11 @@ run_all() {
     "1.1.1.8.sh"
   )
 
+  # Lista negra de scripts a ignorar en modo auditoría
+  local AUDIT_BLACKLIST=(
+    "6.1.AuditClean.sh"
+  )
+
   # Agrega entrada global de auditoría o ejecución al log general
   local timestamp; timestamp="$(date '+%F %T')"
   if [[ $mode == "audit" ]]; then
@@ -48,6 +53,13 @@ run_all() {
     for script in "$bloque"/*.sh; do
       [[ -e $script ]] || continue
       local sname; sname="$(basename "$script")"
+
+      # Omitir scripts en la lista negra de auditoría
+      if [[ $mode == "audit" ]] && [[ " ${AUDIT_BLACKLIST[*]} " =~ " ${sname} " ]]; then
+        log_line "${bname} | ${sname} | AUDIT: SKIPPED |"
+        echo -e "${LIGHT_BLUE}${bname}/${sname} AUDIT: SKIPPED${NC}"
+        continue
+      fi
 
       # Determinar los argumentos para el script individual
       local script_args=""

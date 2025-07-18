@@ -1,27 +1,32 @@
-\
-    #!/bin/bash
-    # =============================================================================
-    # 5.4.1.2 – Ensure minimum password days is configured
-    # =============================================================================
-    set -euo pipefail
+#!/usr/bin/env bash
+# =============================================================================
+# 5.4.1.2 – Ensure minimum password days is configured
+# =============================================================================
+set -euo pipefail
 
-    ITEM_ID="5.4.1.2"
-    LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log"
-    BACKUP_DIR="/var/backups/login_defs"
-    mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
+ITEM_ID="5.4.1.2"
+LOGIN_DEFS="/etc/login.defs"
+BACKUP_DIR="/var/backups/login_defs"
 
-    if [[ $EUID -ne 0 ]]; then
-      echo "ERROR: Este script debe ser ejecutado como root." >&2
-      exit 1
-    fi
+if [[ $EUID -ne 0 ]]; then
+  echo "ERROR: Este script debe ser ejecutado como root." >&2
+  exit 1
+fi
 
-    DRY_RUN=0; [[ $# -gt 0 && $1 == "--dry-run" ]] && DRY_RUN=1
-    LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
-    log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
-    run(){ [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }; }
+DRY_RUN=0
+LOG_SUBDIR="exec"
+if [[ "${1:-}" == "--dry-run" ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
 
-    LOGIN_DEFS="/etc/login.defs"
-    backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKUP_DIR}/$(basename "$f").$(date +%Y%m%d-%H%M%S)'"; }
+LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log/${LOG_SUBDIR}"
+mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
+LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+
+log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
+run(){ [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }; }
+backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKUP_DIR}/$(basename "$f").$(date +%Y%m%d-%H%M%S)'"; }
 
     patch_login_defs(){
       log "→ Revisando $LOGIN_DEFS"

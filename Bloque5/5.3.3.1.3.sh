@@ -1,22 +1,14 @@
 #!/usr/bin/env bash
-
 # =============================================================================
 # 5.3.3.1.3 – Asegurar que /etc/security/faillock.conf incluya even_deny_root
 #            o root_unlock_time=60 (o mayor)
 # =============================================================================
-
 set -euo pipefail
 
 ITEM_ID="5.3.3.1.3_FaillockConf"
-SCRIPT_NAME="$(basename "$0")"
-LOG_DIR="./Log"
 BACKUP_DIR="/etc/security/hardening_backups"
 FAILLOCK_CONF="/etc/security/faillock.conf"
 ROOT_UNLOCK_TIME="60"
-
-mkdir -p "$LOG_DIR" "$BACKUP_DIR"
-
-LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 log() {
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE"
@@ -29,10 +21,18 @@ ensure_root() {
   fi
 }
 
-ensure_root "$@"
+ensure_root
 
 DRY_RUN=0
-[[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]] && DRY_RUN=1
+LOG_SUBDIR="exec"
+if [[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
+
+LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log/${LOG_SUBDIR}"
+mkdir -p "$LOG_DIR" "$BACKUP_DIR"
+LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 # Si no existe el archivo, lo crea
 if [[ ! -f "$FAILLOCK_CONF" ]]; then

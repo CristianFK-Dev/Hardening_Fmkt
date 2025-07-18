@@ -16,8 +16,6 @@ BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 BACKUP_DIR="/etc/hardening_backups"
 
-mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
-
 ### Funciones auxiliares #######################################################
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
@@ -42,8 +40,14 @@ run() {
 
 # Parámetros
 DRY_RUN=0
-[[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]] && DRY_RUN=1
+LOG_SUBDIR="exec"
+if [[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
 
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 ensure_root

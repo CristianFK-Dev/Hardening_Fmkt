@@ -21,12 +21,17 @@ set -euo pipefail
 ITEM_ID="clean_auditd"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
-LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 DRY_RUN=0
+LOG_SUBDIR="exec"
 
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "$LOG_DIR"
+LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 log() {
   printf '[%s] %s\n' "$(date +'%F %T')" "$*" | tee -a "$LOG_FILE"
