@@ -38,6 +38,12 @@ run_all() {
     "6.1.AuditClean.sh"
   )
 
+  # Lista negra de scripts a ignorar en modo ejecución
+  local EXEC_BLACKLIST=(
+    "5.2.4.sh"
+    "5.1.8.sh"
+  )
+
   # Agrega entrada global de auditoría o ejecución al log general
   local timestamp; timestamp="$(date '+%F %T')"
   if [[ $mode == "audit" ]]; then
@@ -58,6 +64,13 @@ run_all() {
       if [[ $mode == "audit" ]] && [[ " ${AUDIT_BLACKLIST[*]} " =~ " ${sname} " ]]; then
         log_line "${bname} | ${sname} | AUDIT: SKIPPED |"
         echo -e "${LIGHT_BLUE}${bname}/${sname} AUDIT: SKIPPED${NC}"
+        continue
+      fi
+
+      # Omitir scripts en la lista negra de ejecución
+      if [[ ( $mode == "exec" || $mode == "exec_force" ) ]] && [[ " ${EXEC_BLACKLIST[*]} " =~ " ${sname} " ]]; then
+        log_line "${bname} | ${sname} | EXEC: SKIPPED |"
+        echo -e "${LIGHT_BLUE}${bname}/${sname} EXEC: SKIPPED${NC}"
         continue
       fi
 
