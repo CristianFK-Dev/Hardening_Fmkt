@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.14 Ensure events that modify the system's Mandatory Access Controls are collected
-#
+# 6.2.3.14 Asegurar que se recopilan los eventos que modifican los controles de acceso 
+#          obligatorio del sistema
 # Monitorea cambios en /etc/apparmor/ y /etc/apparmor.d/ usando etiqueta -k MAC-policy
 # -----------------------------------------------------------------------------
 set -euo pipefail
@@ -9,7 +9,15 @@ set -euo pipefail
 ITEM_ID="6.2.3.14"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
+DRY_RUN=0
+LOG_SUBDIR="exec"
+
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 RULE_FILE="/etc/audit/rules.d/50-MAC-policy.rules"
@@ -18,37 +26,39 @@ RULES=(
 "-w /etc/apparmor.d/ -p wa -k MAC-policy"
 )
 
-DRY_RUN=0
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
-
 log(){ printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
+run(){ [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }; }
 ensure_root(){ [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
 rule_present(){
   local rule_to_find="$1"
   grep -hFxq -- "$rule_to_find" /etc/audit/rules.d/*.rules 2>/dev/null
 }
 
-mkdir -p "$LOG_DIR"; :> "$LOG_FILE"; log "Run $SCRIPT_NAME – $ITEM_ID"
-ensure_root
-[[ $DRY_RUN -eq 0 ]] && { touch "$RULE_FILE"; chmod 640 "$RULE_FILE"; }
-
-for rule in "${RULES[@]}"; do
-  if rule_present "$rule"; then
-    log "[OK] Regla presente: $rule"
-  else
-    if [[ $DRY_RUN -eq 1 ]]; then
-      log "[DRY-RUN] Añadiría: $rule"
-    else
-      echo "$rule" >> "$RULE_FILE"
-      log "Regla añadida: $rule"
-    fi
+main() {
+  mkdir -p "$LOG_DIR"
+  :> "$LOG_FILE"
+  log "Run $SCRIPT_NAME – $ITEM_ID"
+  ensure_root
+  if [[ $DRY_RUN -eq 0 ]]; then
+    run "touch '$RULE_FILE'"
+    run "chmod 640 '$RULE_FILE'"
   fi
-done
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
+  for rule in "${RULES[@]}"; do
+    if rule_present "$rule"; then
+      log "[OK] Regla presente: $rule"
+    else
+      if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Añadiría: $rule"
+      else
+        echo "$rule" >> "$RULE_FILE"
+        log "Regla añadida: $rule"
+      fi
+    fi
+  done
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-exit 0
+  log "[SUCCESS] ${ITEM_ID} aplicado"
+  exit 0
+}
+
+main "$@"

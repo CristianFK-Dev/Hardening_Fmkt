@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
 # Script para Limpiar y Deshabilitar Completamente Auditd
-#
-# Este script realiza las siguientes acciones:
-# - Detiene el servicio auditd.
-# - Deshabilita auditd para que no se inicie en el arranque.
-# - Elimina todas las reglas de auditoría cargadas del kernel.
-# - Borra el archivo de reglas compilado principal (/etc/audit/audit.rules).
-# - Borra todos los archivos de reglas personalizados en /etc/audit/rules.d/.
-#
-# Uso      : sudo ./clean_auditd.sh [--dry-run]
-#            --dry-run  → muestra acciones sin aplicar cambios
-#
-# Registro  : Log/<timestamp>_clean_auditd.log
-# Retorno   : 0 éxito; !=0 error
 # =============================================================================
 
 set -euo pipefail

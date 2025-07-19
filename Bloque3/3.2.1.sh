@@ -24,7 +24,6 @@ LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 # --- Lógica Principal del Script ---
 main() {
-  ensure_root
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
 
