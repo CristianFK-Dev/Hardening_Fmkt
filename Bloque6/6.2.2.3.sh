@@ -1,50 +1,41 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.2.3 – Ensure system is disabled when audit logs are full
-#
-# Descripción  : Configura los parámetros disk_full_action y disk_error_action
-#                en /etc/audit/auditd.conf para garantizar que el sistema se
-#                desactive o pase a modo seguro cuando los logs se llenen.
-#
-# Requisitos   :
-#   - disk_full_action  : halt | single   (se usará 'halt')
-#   - disk_error_action : syslog | single | halt   (se usará 'syslog')
-#
-# Referencias  : CIS Debian 12 v1.1.0 - 6.2.2.3
+# 6.2.2.3 – Asegurar que el sistema se desactive cuando los logs de auditoría estén llenos
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
 ITEM_ID="6.2.2.3"
+ITEM_DESC="Asegurar que el sistema se desactive cuando los logs de auditoría estén llenos"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
+
+DRY_RUN=0
+LOG_SUBDIR="exec"
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 AUDIT_CONF="/etc/audit/auditd.conf"
 REQ_DISK_FULL_ACTION="halt"
 REQ_DISK_ERROR_ACTION="syslog"
 
-DRY_RUN=0
-if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
-  DRY_RUN=1
-fi
-
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
-
-ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Debe ejecutarse como root." >&2
-    exit 1
-  fi
+run() {
+  [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
 }
-
+ensure_root() {
+  [[ $EUID -eq 0 ]] || { log "ERROR: Debe ejecutarse como root."; exit 1; }
+}
 get_value() {
   local key="$1"
-  grep -iE "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF" | head -n1 | awk -F= '{gsub(/[[:space:]]*/,"",$2); print tolower($2)}'
+  grep -iE "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF" | head -n1 | awk -F= '{gsub(/^[[:space:]]+|[[:space:]]+$/,"",$2); print tolower($2)}'
 }
-
 set_param() {
   local key="$1" desired="$2"
   local current
@@ -76,7 +67,7 @@ set_param() {
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
-  log "Ejecutando ${SCRIPT_NAME} – ${ITEM_ID}"
+  log "Ejecutando ${SCRIPT_NAME} – ${ITEM_ID} (${ITEM_DESC})"
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
@@ -86,7 +77,7 @@ main() {
 
   # Backup antes de cambios reales
   if [[ $DRY_RUN -eq 0 ]]; then
-    cp -p "$AUDIT_CONF" "${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)"
+    run "cp -p '$AUDIT_CONF' '${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)'"
     log "Backup creado de auditd.conf"
   fi
 
@@ -95,11 +86,12 @@ main() {
 
   if [[ $DRY_RUN -eq 0 ]]; then
     log "Reiniciando auditd ..."
-    systemctl restart auditd
+    run "systemctl restart auditd"
     log "[OK] auditd reiniciado"
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  exit 0
 }
 
 main "$@"
