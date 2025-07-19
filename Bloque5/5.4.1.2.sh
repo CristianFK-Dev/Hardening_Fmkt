@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 5.4.1.2 – Ensure minimum password days is configured
+# 5.4.1.2 – Asegurar que los días mínimos de contraseña estén configurados 
 # =============================================================================
+
 set -euo pipefail
 
 ITEM_ID="5.4.1.2"
 LOGIN_DEFS="/etc/login.defs"
 BACKUP_DIR="/var/backups/login_defs"
-
-if [[ $EUID -ne 0 ]]; then
-  echo "ERROR: Este script debe ser ejecutado como root." >&2
-  exit 1
-fi
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
 if [[ "${1:-}" == "--dry-run" ]]; then
@@ -28,33 +23,41 @@ log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
 run(){ [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }; }
 backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKUP_DIR}/$(basename "$f").$(date +%Y%m%d-%H%M%S)'"; }
 
-    patch_login_defs(){
-      log "→ Revisando $LOGIN_DEFS"
-      if grep -qE '^\s*PASS_MIN_DAYS\s+[0-9]+' "$LOGIN_DEFS"; then
-        if grep -qE '^\s*PASS_MIN_DAYS\s+0\b' "$LOGIN_DEFS"; then
-          backup "$LOGIN_DEFS"
-          run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
-          log "  • PASS_MIN_DAYS cambiado a 1"
-        else
-          log "  • PASS_MIN_DAYS ya ≥1 – sin cambios"
-        fi
-      else
-        backup "$LOGIN_DEFS"
-        run "echo -e '\nPASS_MIN_DAYS\t1' >> '$LOGIN_DEFS'"
-        log "  • PASS_MIN_DAYS = 1 añadido"
-      fi
-    }
+ensure_root() { [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }; }
 
-    patch_users(){
-      log "→ Ajustando mindays de usuarios"
-      while IFS=: read -r user pw last min rest; do
-        [[ $pw =~ ^\$ ]] || continue
-        [[ -z $min || $min -lt 1 ]] || continue
-        run "chage --mindays 1 '$user'"
-      done < /etc/shadow
-    }
+patch_login_defs() {
+  log "→ Revisando $LOGIN_DEFS"
+  if grep -qE '^\s*PASS_MIN_DAYS\s+[0-9]+' "$LOGIN_DEFS"; then
+    if grep -qE '^\s*PASS_MIN_DAYS\s+0\b' "$LOGIN_DEFS"; then
+      backup "$LOGIN_DEFS"
+      run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
+      log "  • PASS_MIN_DAYS cambiado a 1"
+    else
+      log "  • PASS_MIN_DAYS ya ≥1 – sin cambios"
+    fi
+  else
+    backup "$LOGIN_DEFS"
+    run "echo -e '\nPASS_MIN_DAYS\t1' >> '$LOGIN_DEFS'"
+    log "  • PASS_MIN_DAYS = 1 añadido"
+  fi
+}
 
-    log "=== Remediación $ITEM_ID iniciada (dry-run=$DRY_RUN) ==="
-    patch_login_defs
-    patch_users
-    log "=== Remediación $ITEM_ID completada ==="
+patch_users() {
+  log "→ Ajustando mindays de usuarios"
+  while IFS=: read -r user pw last min rest; do
+    [[ $pw =~ ^\$ ]] || continue
+    [[ -z $min || $min -lt 1 ]] || continue
+    run "chage --mindays 1 '$user'"
+  done < /etc/shadow
+}
+
+main() {
+  ensure_root
+  log "=== Remediación $ITEM_ID iniciada (dry-run=$DRY_RUN) ==="
+  patch_login_defs
+  patch_users
+  log "=== Remediación $ITEM_ID completada ==="
+  exit 0
+}
+
+main "$@"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # =============================================================================
 # 3.2.4 – Ensure sctp kernel module is not available
 # Deshabilita y deniega el módulo SCTP (Stream Control Transmission Protocol).
@@ -15,23 +15,27 @@ set -euo pipefail
 ITEM_ID="3.2.4"
 MOD_NAME="sctp"
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
-
-# --- Escalar privilegios si es necesario ---
-if [[ $EUID -ne 0 ]]; then
-  echo "→ No soy root, re-ejecutando con sudo…" >&2
-  exec sudo --preserve-env=PATH "$0" "$@"
-fi
+DRY_RUN=0
+LOG_SUBDIR="exec" 
 
 # ---------- parámetros ----------
-DRY_RUN=0
-[[ $# -gt 0 && $1 == "--dry-run" ]] && DRY_RUN=1
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1; LOG_SUBDIR="audit" ;;
+    *) echo "Uso: $0 [--dry-run]" >&2; exit 1 ;;
+  esac
+done
 
 # ---------- log ----------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${SCRIPT_DIR}/Log"
+LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
-log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
+log() {
+    # Asegurarse de que el directorio de log existe justo antes de escribir
+    mkdir -p "$(dirname "${LOG_FILE}")"
+    echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
+}
 run() {
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     log "[DRY-RUN] $*"

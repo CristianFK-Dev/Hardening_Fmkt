@@ -3,16 +3,14 @@
 # 3.2.1 – Ensure dccp kernel module is not available
 # Deshabilita y deniega el módulo DCCP (Datagram Congestion Control Protocol).
 # =============================================================================
+
 set -euo pipefail
 
-# --- Boilerplate: Variables Globales y Configuración ---
 ITEM_ID="3.2.1"
 MOD_NAME="dccp"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
-
-# --- Manejo de Parámetros y Directorios de Log ---
 DRY_RUN=0
 LOG_SUBDIR="exec"
 
@@ -23,27 +21,6 @@ fi
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
-# --- Funciones de Ayuda ---
-ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Este script debe ser ejecutado como root." >&2
-    exit 1
-  fi
-}
-
-log() {
-  printf '[%s] %s\n' "$(date +'%F %T')" "$*" | tee -a "$LOG_FILE"
-}
-
-run() {
-  if [[ $DRY_RUN -eq 1 ]]; then
-    log "[DRY-RUN] $*"
-  else
-    log "[EXEC] $*"
-    eval "$@"
-  fi
-}
 
 # --- Lógica Principal del Script ---
 main() {
@@ -88,5 +65,4 @@ main() {
   log "== Remediación ${ITEM_ID} completada =="
 }
 
-# --- Punto de Entrada: Ejecución ---
 main "$@"

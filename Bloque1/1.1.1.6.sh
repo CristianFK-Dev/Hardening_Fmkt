@@ -15,10 +15,8 @@ set -euo pipefail
 
 ITEM_ID="1.1.1.6"
 MOD_NAME="overlay"          # nombre real del módulo (.ko)
-ALIAS_NAME="overlayfs"      # alias usado por el benchmark
+ALIAS_NAME="overlayfs"      # alias usado Nessus
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
-
-# ---------- parámetros ----------
 DRY_RUN=0
 FORCE=0
 LOG_SUBDIR="exec" # Por defecto, logs de ejecución

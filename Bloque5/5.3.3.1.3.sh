@@ -3,70 +3,71 @@
 # 5.3.3.1.3 – Asegurar que /etc/security/faillock.conf incluya even_deny_root
 #            o root_unlock_time=60 (o mayor)
 # =============================================================================
+
 set -euo pipefail
 
 ITEM_ID="5.3.3.1.3_FaillockConf"
+SCRIPT_NAME="$(basename "$0")"
+BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="/etc/security/hardening_backups"
 FAILLOCK_CONF="/etc/security/faillock.conf"
 ROOT_UNLOCK_TIME="60"
-
-log() {
-  printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE"
-}
-
-ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Este script debe ser ejecutado como root." >&2
-    exit 1
-  fi
-}
-
-ensure_root
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 if [[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
 fi
 
-LOG_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Log/${LOG_SUBDIR}"
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
 mkdir -p "$LOG_DIR" "$BACKUP_DIR"
-LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+: > "$LOG_FILE"
 
-# Si no existe el archivo, lo crea
-if [[ ! -f "$FAILLOCK_CONF" ]]; then
-  log "Archivo $FAILLOCK_CONF no existe. Creando..."
-  [[ $DRY_RUN -eq 0 ]] && touch "$FAILLOCK_CONF"
-fi
+log() {
+  printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE"
+}
+run() {
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    log "[DRY-RUN] $*"
+  else
+    log "[EXEC]   $*"
+    eval "$@"
+  fi
+}
+ensure_root() {
+  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+}
 
-# Verificamos si ya tiene configuración válida
-if grep -Eq '^\s*(even_deny_root|root_unlock_time\s*=\s*[6-9][0-9]|[1-9][0-9]{2,})\b' "$FAILLOCK_CONF"; then
-  log "✔ El archivo ya contiene configuración válida (even_deny_root o root_unlock_time >= 60)."
-  exit 0
-fi
+main() {
+  ensure_root
+  log "=== Remediación ${ITEM_ID}: Validar even_deny_root y root_unlock_time en $FAILLOCK_CONF ==="
 
-# Backup previo
-BACKUP_FILE="${BACKUP_DIR}/faillock.conf.$(date +%Y%m%d-%H%M%S)"
-if [[ $DRY_RUN -eq 0 ]]; then
-  cp --preserve=mode,ownership,timestamps "$FAILLOCK_CONF" "$BACKUP_FILE"
+  if [[ ! -f "$FAILLOCK_CONF" ]]; then
+    log "Archivo $FAILLOCK_CONF no existe. Creando..."
+    run "touch '$FAILLOCK_CONF'"
+  fi
+
+  if grep -Eq '^\s*(even_deny_root|root_unlock_time\s*=\s*[6-9][0-9]|[1-9][0-9]{2,})\b' "$FAILLOCK_CONF"; then
+    log "[OK] El archivo ya contiene configuración válida (even_deny_root o root_unlock_time >= 60)."
+    log "== Remediación ${ITEM_ID} completada =="
+    exit 0
+  fi
+
+  BACKUP_FILE="${BACKUP_DIR}/faillock.conf.$(date +%Y%m%d-%H%M%S)"
+  run "cp --preserve=mode,ownership,timestamps '$FAILLOCK_CONF' '$BACKUP_FILE'"
   log "Backup creado: $BACKUP_FILE"
-else
-  log "[DRY-RUN] Se crearía backup: $BACKUP_FILE"
-fi
 
-# Agregar las líneas requeridas
-if [[ $DRY_RUN -eq 0 ]]; then
-  {
-    echo ""
-    echo "# Añadido por $SCRIPT_NAME para cumplimiento 5.3.3.1.3"
-    echo "even_deny_root"
-    echo "root_unlock_time = $ROOT_UNLOCK_TIME"
-  } >> "$FAILLOCK_CONF"
-  log "✔ Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
-else
-  log "[DRY-RUN] Se añadiría 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
-fi
+  run "echo >> '$FAILLOCK_CONF'"
+  run "echo '# Añadido por $SCRIPT_NAME para cumplimiento $ITEM_ID' >> '$FAILLOCK_CONF'"
+  run "echo 'even_deny_root' >> '$FAILLOCK_CONF'"
+  run "echo 'root_unlock_time = $ROOT_UNLOCK_TIME' >> '$FAILLOCK_CONF'"
+  log "[OK] Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
 
-log "Remediación ${ITEM_ID} completada."
-exit 0
+  log "== Remediación ${ITEM_ID} completada =="
+  exit 0
+}
+
+main "$@"
