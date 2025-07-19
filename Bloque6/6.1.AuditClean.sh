@@ -26,13 +26,11 @@ log() {
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    # Este script debe ser llamado por un wrapper que ya es root.
     echo "ERROR: Este script debe ser ejecutado como root." >&2
     exit 1
   fi
 }
 
-### MAIN
 : > "$LOG_FILE" # Limpia el archivo de log al inicio
 ensure_root "$@"
 log "=== Inicio del script de limpieza y deshabilitación de Auditd ==="

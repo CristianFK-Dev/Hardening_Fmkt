@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 3.2.3 – Ensure rds kernel module is not available
-# Deshabilita y deniega el módulo RDS (Reliable Datagram Sockets).
-#
-# Uso      : sudo ./3.2.3.sh [--dry-run]
-#            --dry-run  → muestra acciones sin aplicar cambios
-#
-# Registro  : Bloque3/Log/<timestamp>_3.2.3.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 3.2.3 – Asegurar que el módulo rds no esté disponible
 # =============================================================================
 
 set -euo pipefail

@@ -1,18 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 1.1.1.7 – Ensure squashfs kernel module is not available
-# Deshabilita y deniega el módulo squashfs para reducir superficie de ataque.
-#
-# Aviso   : Snap packages utilizan squashfs. Si tu sistema usa Snapd,
-#           este cambio romperá esos paquetes. Ejecuta con --force
-#           solamente si estás seguro.
-#
-# Uso      : sudo ./1.1.1.7.sh [--dry-run] [--force]
-#            --dry-run  → muestra lo que haría
-#            --force    → omite advertencia de Snap
-#
-# Registro  : Bloque1/Log/<timestamp>_1.1.1.7.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 1.1.1.7 – Asegurar que el módulo squashfs no esté disponible
 # =============================================================================
 
 set -euo pipefail

@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 3.2.4 – Ensure sctp kernel module is not available
-# Deshabilita y deniega el módulo SCTP (Stream Control Transmission Protocol).
-#
-# Uso      : sudo ./3.2.4.sh [--dry-run]
-#            --dry-run  → muestra acciones sin aplicar cambios
-#
-# Registro  : Bloque3/Log/<timestamp>_3.2.4.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 3.2.4 – Asegurar que el módulo sctp no esté disponible
 # =============================================================================
 
 set -euo pipefail

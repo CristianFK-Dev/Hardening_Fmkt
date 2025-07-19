@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 1.1.1.6 – Ensure overlayfs kernel module is not available
-# Deshabilita y deniega el módulo overlay/overlayfs (CVE-2023-32629, 2640, 0386)
-#
-# Uso      : sudo ./1.1.1.6.sh [--dry-run] [--force]
-#            --dry-run  → solo muestra acciones
-#            --force    → continúa incluso si Docker/K8s usan overlay
-#
-# Registro  : Bloque1/Log/<timestamp>_1.1.1.6.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 1.1.1.6 – Asegurar que el módulo overlayfs no esté disponible
 # =============================================================================
 
 set -euo pipefail

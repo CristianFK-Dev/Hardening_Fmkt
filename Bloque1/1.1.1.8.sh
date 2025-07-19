@@ -1,19 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 1.1.1.8 – Ensure udf kernel module is not available
-# Deshabilita y deniega el módulo udf (Universal Disk Format) para reducir
-# superficie de ataque cuando no se requiera grabar DVD/ISO.
-#
-# Advertencia Azure:
-#     Microsoft Azure utiliza udf internamente en algunas instancias.
-#     Este script abortará si detecta Azure, salvo que pases --force.
-#
-# Uso      : sudo ./1.1.1.8.sh [--dry-run] [--force]
-#            --dry-run  → solo muestra acciones
-#            --force    → omite advertencia Azure
-#
-# Registro  : Bloque1/Log/<timestamp>_1.1.1.8.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 1.1.1.8 – Asegurar que el módulo udf no esté disponible
 # =============================================================================
 
 set -euo pipefail

@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 3.2.2 – Ensure tipc kernel module is not available
-# Deshabilita y deniega el módulo TIPC (Transparent Inter-Process Communication).
-#
-# Uso      : sudo ./3.2.2.sh [--dry-run]
-#            --dry-run  → muestra acciones sin aplicar cambios
-#
-# Registro  : Bloque3/Log/<timestamp>_3.2.2.log
-# Retorno   : 0 éxito; !=0 error (set -euo pipefail)
+# 3.2.2 – Asegurar que el módulo tipc no esté disponible
 # =============================================================================
 
 set -euo pipefail
