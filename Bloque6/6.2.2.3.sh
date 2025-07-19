@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------
 # 6.2.2.3 – Asegurar que el sistema se desactive cuando los logs de auditoría estén llenos
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.2.3"
@@ -73,6 +74,17 @@ main() {
   if [[ ! -f "$AUDIT_CONF" ]]; then
     log "[ERR] Archivo ${AUDIT_CONF} no encontrado"
     exit 1
+  fi
+
+  # Verificar ambos parámetros antes de actuar
+  local full_action error_action
+  full_action=$(get_value "disk_full_action")
+  error_action=$(get_value "disk_error_action")
+
+  if [[ "$full_action" == "$REQ_DISK_FULL_ACTION" && "$error_action" == "$REQ_DISK_ERROR_ACTION" ]]; then
+    log "[OK] Configuración ya conforme: disk_full_action=$full_action, disk_error_action=$error_action"
+    log "[SUCCESS] ${ITEM_ID} aplicado (sin cambios)"
+    exit 0
   fi
 
   # Backup antes de cambios reales
