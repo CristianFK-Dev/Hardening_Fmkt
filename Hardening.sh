@@ -185,21 +185,21 @@ welcome_screen() {
   clear
   echo -e "${LIGHT_BLUE}"
   cat << "EOF"
-     ███████╗███╗   ███╗ ██╗ ██╗████████╗
-     ██╔════╝████╗ ████║ ██║██╔╝╚══██╔══╝
-     █████╗  ██╔████╔██║ █████╔╝   ██║
-     ██╔══╝  ██║╚██╔╝██║ ██╔═██╗   ██║
-     ██╗     ██║ ╚═╝ ██║ ██║  ██╗  ██║
-     ╚═╝     ╚═╝     ╚═╝ ╚═╝  ╚═╝  ╚═╝
+                ███████╗███╗   ███╗ ██╗ ██╗████████╗
+                ██╔════╝████╗ ████║ ██║██╔╝╚══██╔══╝
+                █████╗  ██╔████╔██║ █████╔╝   ██║
+                ██╔══╝  ██║╚██╔╝██║ ██╔═██╗   ██║
+                ██╗     ██║ ╚═╝ ██║ ██║  ██╗  ██║
+                ╚═╝     ╚═╝     ╚═╝ ╚═╝  ╚═╝  ╚═╝
 
-    F I D E L I T Y   M A R K E T I N G
-                   2025
+                F I D E L I T Y   M A R K E T I N G
+                              2025
 
-********************************************
-* Authorized Access Only                   *
-* All activity is monitored and logged.    *
-* Disconnect immediately if unauthorized.  *
-********************************************
+***********************************************************************
+*                    ¡Solo personal autorizado!                       *
+* Atención: Este script modifica configuraciones críticas del sistema *
+*        Asegúrese de entender los cambios que se aplicarán.          *
+***********************************************************************
 EOF
   echo -e "${NC}"
 }

@@ -76,7 +76,6 @@ main() {
     exit 1
   fi
 
-  # Verificar ambos parámetros antes de actuar
   local full_action error_action
   full_action=$(get_value "disk_full_action")
   error_action=$(get_value "disk_error_action")
@@ -87,7 +86,6 @@ main() {
     exit 0
   fi
 
-  # Backup antes de cambios reales
   if [[ $DRY_RUN -eq 0 ]]; then
     run "cp -p '$AUDIT_CONF' '${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)'"
     log "Backup creado de auditd.conf"

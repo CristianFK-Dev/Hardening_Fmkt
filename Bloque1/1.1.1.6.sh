@@ -6,9 +6,9 @@
 set -euo pipefail
 
 ITEM_ID="1.1.1.6"
+MOD_NAME="overlay"
+ALIAS_NAME="overlayfs"
 ITEM_DESC="Deshabilitar ${MOD_NAME}/${ALIAS_NAME}"
-MOD_NAME="overlay"          # nombre real del módulo
-ALIAS_NAME="overlayfs"      # alias usado Nessus
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
 DRY_RUN=0
 FORCE=0
