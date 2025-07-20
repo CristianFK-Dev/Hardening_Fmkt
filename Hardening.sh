@@ -41,8 +41,8 @@ run_all() {
 
   # Lista negra de scripts a ignorar en modo ejecución
   local EXEC_BLACKLIST=(
-    "5.2.4.sh"
     "5.1.8.sh"
+    "5.2.4.sh"
   )
 
   # Agrega entrada global de auditoría o ejecución al log general

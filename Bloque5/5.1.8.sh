@@ -40,8 +40,13 @@ main() {
   log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
 
   if [[ ! -f "${SSH_CFG}" ]]; then
-    log "[FAIL] No se encontró el archivo de configuración: ${SSH_CFG}. No se realizaron cambios."
-    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    if [[ "${DRY_RUN}" -eq 1 ]]; then
+      log "[AUDIT] No se encontró el archivo de configuración: ${SSH_CFG}. No se realizaría ningún cambio."
+      log "== Auditoría ${ITEM_ID}: ${ITEM_DESC} finalizada =="
+    else
+      log "[FAIL] No se encontró el archivo de configuración: ${SSH_CFG}. No se realizaron cambios."
+      log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    fi
     exit 1
   fi
 
