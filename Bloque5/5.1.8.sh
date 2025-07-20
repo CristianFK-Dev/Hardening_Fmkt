@@ -6,6 +6,7 @@
 set -euo pipefail
 
 ITEM_ID="5.1.8"
+ITEM_DESC="Asegurar que sshd DisableForwarding esté habilitado"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SSH_CFG="/etc/ssh/sshd_config"
@@ -54,7 +55,7 @@ main() {
 
   if [[ "${CURRENT_VALUE}" == "yes" ]]; then
     log "[OK] DisableForwarding ya está en 'yes' (línea ${LINE_NUM}). Nada que hacer."
-    log "== Remediación ${ITEM_ID} completada =="
+    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 0
   fi
 
@@ -87,7 +88,7 @@ main() {
     rm -f "${TMP}"
   fi
 
-  log "== Remediación ${ITEM_ID} completada =="
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

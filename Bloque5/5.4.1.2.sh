@@ -6,6 +6,7 @@
 set -euo pipefail
 
 ITEM_ID="5.4.1.2"
+ITEM_DESC="Asegurar que los días mínimos de contraseña estén configurados"
 LOGIN_DEFS="/etc/login.defs"
 BACKUP_DIR="/var/backups/login_defs"
 DRY_RUN=0
@@ -53,10 +54,10 @@ patch_users() {
 
 main() {
   ensure_root
-  log "=== Remediación $ITEM_ID iniciada (dry-run=$DRY_RUN) ==="
+  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada (dry-run=$DRY_RUN) ==="
   patch_login_defs
   patch_users
-  log "=== Remediación $ITEM_ID completada ==="
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

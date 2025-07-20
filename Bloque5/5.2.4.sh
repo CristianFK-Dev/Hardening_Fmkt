@@ -7,6 +7,7 @@
 set -euo pipefail
 
 ITEM_ID="5.2.4"
+ITEM_DESC="Asegurar que los usuarios deben proporcionar contraseña para la escalada de privilegios"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="/etc/hardening_backups"
@@ -42,7 +43,7 @@ ensure_root() {
 
 main() {
   ensure_root
-  log "=== Remediación ${ITEM_ID}: Eliminar NOPASSWD (excluyendo root, admin, nessusauth) ==="
+  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   PATTERN='^[[:space:]]*[^#].*NOPASSWD'
   EXCLUDE='^[[:space:]]*(root|admin|nessus|nessusauth)[[:space:]].*NOPASSWD'
@@ -86,7 +87,7 @@ main() {
   done
 
   [[ $MODIFIED -eq 0 ]] && log "Sistema ya conforme. Sin cambios aplicados."
-  log "== Remediación ${ITEM_ID} completada =="
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

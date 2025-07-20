@@ -6,6 +6,7 @@
 #   • Ejecuta o audita todos los scripts de cada bloque
 #   • Registra resultados en Hardening.log
 # ------------------------------------------------------------------
+
 set -euo pipefail
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -47,9 +48,9 @@ run_all() {
   # Agrega entrada global de auditoría o ejecución al log general
   local timestamp; timestamp="$(date '+%F %T')"
   if [[ $mode == "audit" ]]; then
-    log_line "===== [AUDIT MODE] Inicio de auditoría: $timestamp ====="
+    log_line "===== [AUDIT MODE] Inicio de auditoría [AUDIT MODE]: $timestamp ====="
   else
-    log_line "===== [EXEC MODE] Inicio de ejecución: $timestamp ====="
+    log_line "===== [EXEC MODE] Inicio de ejecución  [EXEC MODE]: $timestamp ====="
   fi
 
   for bloque in "$BASE_DIR"/Bloque*/; do
@@ -233,7 +234,7 @@ while true; do
   main_menu
 
   read -rp $'\nSeleccione una opción (1-6): ' choice
-  echo "" # Newline for clarity
+  echo ""
 
   case "$choice" in
     1)

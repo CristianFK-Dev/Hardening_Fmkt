@@ -7,6 +7,7 @@
 set -euo pipefail
 
 ITEM_ID="5.3.3.1.3_FaillockConf"
+ITEM_DESC="Asegurar que /etc/security/faillock.conf incluya even_deny_root o root_unlock_time=60 (o mayor)"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="/etc/security/hardening_backups"
@@ -43,7 +44,7 @@ ensure_root() {
 
 main() {
   ensure_root
-  log "=== Remediación ${ITEM_ID}: Validar even_deny_root y root_unlock_time en $FAILLOCK_CONF ==="
+  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   if [[ ! -f "$FAILLOCK_CONF" ]]; then
     log "Archivo $FAILLOCK_CONF no existe. Creando..."
@@ -52,7 +53,7 @@ main() {
 
   if grep -Eq '^\s*(even_deny_root|root_unlock_time\s*=\s*[6-9][0-9]|[1-9][0-9]{2,})\b' "$FAILLOCK_CONF"; then
     log "[OK] El archivo ya contiene configuración válida (even_deny_root o root_unlock_time >= 60)."
-    log "== Remediación ${ITEM_ID} completada =="
+    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 0
   fi
 
@@ -66,7 +67,7 @@ main() {
   run "echo 'root_unlock_time = $ROOT_UNLOCK_TIME' >> '$FAILLOCK_CONF'"
   log "[OK] Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
 
-  log "== Remediación ${ITEM_ID} completada =="
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 
