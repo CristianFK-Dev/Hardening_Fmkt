@@ -9,9 +9,9 @@ ITEM_ID="6.2.2.3"
 ITEM_DESC="Asegurar que el sistema se desactive cuando los logs de auditoría estén llenos"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
@@ -68,11 +68,12 @@ set_param() {
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
-  log "Ejecutando ${SCRIPT_NAME} – ${ITEM_ID} (${ITEM_DESC})"
+  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
     log "[ERR] Archivo ${AUDIT_CONF} no encontrado"
+    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 1
   fi
 
@@ -82,7 +83,7 @@ main() {
 
   if [[ "$full_action" == "$REQ_DISK_FULL_ACTION" && "$error_action" == "$REQ_DISK_ERROR_ACTION" ]]; then
     log "[OK] Configuración ya conforme: disk_full_action=$full_action, disk_error_action=$error_action"
-    log "[SUCCESS] ${ITEM_ID} aplicado (sin cambios)"
+    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 0
   fi
 
@@ -100,7 +101,7 @@ main() {
     log "[OK] auditd reiniciado"
   fi
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

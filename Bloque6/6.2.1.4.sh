@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.1.4 – Ensure audit_backlog_limit is sufficient (>= 8192)
+# 6.2.1.4 – Asegurar que el límite de retroceso de auditoría sea suficiente (>= 8192)
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
 ITEM_ID="6.2.1.4"
+ITEM_DESC="Asegurar que el límite de retroceso de auditoría sea suficiente (>= 8192)"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
@@ -34,5 +35,6 @@ fi
 log "Ejecutando update-grub ..."
 update-grub      #  <-- sin -q
 
-log "[SUCCESS] ${ITEM_ID} aplicado correctamente (requiere reinicio para tomar efecto)"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada (requiere reinicio para tomar efecto) =="
+
 exit 0

@@ -1,36 +1,24 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.2.2 Ensure audit logs are not automatically deleted
-#
-# Descripción  : Configura max_log_file_action = keep_logs en /etc/audit/auditd.conf
-#                para que los archivos de log de auditd se roten pero nunca se
-#                eliminen automáticamente.
-# Referencias   : CIS Debian 12 v1.1.0 - Sección 6.2.2.2
-#                Nessus FAILED - max_log_file_action incorrecto
+# 6.2.2.2 Asegurar que los logs de auditoría no se eliminen automáticamente
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.2.2"
-ITEM_DESC="Ensure audit logs are not automatically deleted"
+ITEM_DESC="Asegurar que los logs de auditoría no se eliminen automáticamente"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 AUDIT_CONF="/etc/audit/auditd.conf"
 REQUIRED_VALUE="keep_logs"
-
-# -----------------------------------------------------------------------------
-# Parámetros
-# -----------------------------------------------------------------------------
 DRY_RUN=0
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
 fi
 
-# -----------------------------------------------------------------------------
-# Funciones
-# -----------------------------------------------------------------------------
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
@@ -64,7 +52,6 @@ set_max_log_file_action() {
     return 0
   fi
 
-  # Backup
   cp -p "$AUDIT_CONF" "${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)"
   log "Backup creado: ${AUDIT_CONF}.bak.*"
 
@@ -76,15 +63,11 @@ set_max_log_file_action() {
     log "Parámetro max_log_file_action añadido con $REQUIRED_VALUE"
   fi
 
-  # Reiniciar auditd
   log "Reiniciando servicio auditd ..."
   systemctl restart auditd
   log "[OK] auditd reiniciado"
 }
 
-# -----------------------------------------------------------------------------
-# Main
-# -----------------------------------------------------------------------------
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
 
@@ -98,5 +81,5 @@ fi
 
 set_max_log_file_action
 
-log "[SUCCESS] $ITEM_ID Aplicado correctamente"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 exit 0

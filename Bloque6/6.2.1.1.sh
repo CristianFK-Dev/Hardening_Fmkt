@@ -9,9 +9,9 @@ ITEM_ID="6.2.1.1"
 ITEM_DESC="Asegurar que los paquetes auditd estén instalados"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
@@ -56,7 +56,7 @@ main() {
   ensure_package auditd
   ensure_package audispd-plugins
 
-  log "[SUCCESS] $ITEM_ID Aplicado correctamente"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

@@ -9,9 +9,9 @@ ITEM_ID="6.2.1.2"
 ITEM_DESC="Asegurar que el servicio auditd esté habilitado y activo"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
@@ -81,7 +81,7 @@ main() {
   install_auditd_pkg
   ensure_service_enabled_active "auditd"
 
-  log "[SUCCESS] $ITEM_ID Aplicado correctamente"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

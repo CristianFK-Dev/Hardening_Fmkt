@@ -48,9 +48,9 @@ run_all() {
   # Agrega entrada global de auditoría o ejecución al log general
   local timestamp; timestamp="$(date '+%F %T')"
   if [[ $mode == "audit" ]]; then
-    log_line "===== [AUDIT MODE] Inicio de auditoría [AUDIT MODE]: $timestamp ====="
+    log_line "===== [AUDIT MODE]  Inicio de auditoría  [AUDIT MODE]: $timestamp ====="
   else
-    log_line "===== [EXEC MODE] Inicio de ejecución  [EXEC MODE]: $timestamp ====="
+    log_line "===== [EXEC MODE]  Inicio de ejecución  [EXEC MODE]: $timestamp ====="
   fi
 
   for bloque in "$BASE_DIR"/Bloque*/; do
@@ -111,9 +111,9 @@ run_all() {
   # Cierre del bloque de auditoría o ejecución
   timestamp="$(date '+%F %T')"
   if [[ $mode == "audit" ]]; then
-    log_line "===== [AUDIT MODE] Fin de auditoría: $timestamp ====="
+    log_line "===== [AUDIT MODE]  Fin de auditoría  [AUDIT MODE]: $timestamp ====="
   else
-    log_line "===== [EXEC MODE] Fin de ejecución: $timestamp ====="
+    log_line "===== [EXEC MODE]  Fin de ejecución  [EXEC MODE]: $timestamp ====="
   fi
 }
 

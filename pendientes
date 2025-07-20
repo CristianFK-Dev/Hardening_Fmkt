@@ -4,6 +4,9 @@ Terminar de revisar bloque 6
 ver si el el item i y el item desc se pueden llevar a todos los scripts 
 traducir todos los scripts
 
+SEguir con 6.2.2.4
 
-ITEM_ID="6.2.2.3"
-ITEM_DESC="Asegurar que el sistema se desactive cuando los logs de auditoría estén llenos"
+
+del bloque 6 sacar el reinicio de audit ???
+
+agregar SUCCESS en el log ????

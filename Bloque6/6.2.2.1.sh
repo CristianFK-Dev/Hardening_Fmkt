@@ -1,36 +1,24 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.2.1 Ensure audit log storage size is configured
-#
-# Descripción  : Configura el parámetro max_log_file en /etc/audit/auditd.conf
-#                para establecer el tamaño máximo (en MB) de los logs de auditd.
-#                El valor recomendado por CIS es 32 MB como mínimo.
-# Referencias   : CIS Debian 12 v1.1.0 - Sección 6.2.2.1
-#                Nessus FAILED - max_log_file no cumple o no está configurado
+# 6.2.2.1 Asegurar que el tamaño de almacenamiento de los logs de auditoría esté configurado
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.2.1"
-ITEM_DESC="Ensure audit log storage size is configured"
+ITEM_DESC="Asegurar que el tamaño de almacenamiento de los logs de auditoría esté configurado"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 AUDIT_CONF="/etc/audit/auditd.conf"
 REQUIRED_VALUE=32     # Valor mínimo recomendado en MB
-
-# -----------------------------------------------------------------------------
-# Parámetros
-# -----------------------------------------------------------------------------
 DRY_RUN=0
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
 fi
 
-# -----------------------------------------------------------------------------
-# Funciones
-# -----------------------------------------------------------------------------
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
@@ -64,7 +52,6 @@ set_max_log_file() {
     return 0
   fi
 
-  # Backup
   cp -p "$AUDIT_CONF" "${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)"
   log "Backup creado: ${AUDIT_CONF}.bak.*"
 
@@ -76,15 +63,11 @@ set_max_log_file() {
     log "Parámetro max_log_file añadido con $REQUIRED_VALUE MB"
   fi
 
-  # Reiniciar auditd para aplicar cambios
   log "Reiniciando servicio auditd..."
   systemctl restart auditd
   log "[OK] auditd reiniciado"
 }
 
-# -----------------------------------------------------------------------------
-# Main
-# -----------------------------------------------------------------------------
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
 
@@ -98,5 +81,5 @@ fi
 
 set_max_log_file
 
-log "[SUCCESS] $ITEM_ID Aplicado correctamente"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 exit 0
