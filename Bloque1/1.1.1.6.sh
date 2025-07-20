@@ -22,7 +22,6 @@ for arg in "$@"; do
   esac
 done
 
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
