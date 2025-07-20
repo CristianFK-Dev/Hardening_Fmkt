@@ -216,8 +216,8 @@ print_menu_header() {
 
 main_menu() {
     echo -e "Menú Principal:\n"
-    echo -e "  1. Ejecutar"
-    echo -e "  ${Y}2. Auditar${NC}"
+    echo -e "  1. Ejecutar - [EXEC MODE]"
+    echo -e "  ${Y}2. Auditar - [AUDIT MODE]${NC}"
     echo -e "  ${R}3. Ejecutar con --force (Peligroso)${NC}"
     echo -e "  4. Ver log general"
     echo -e "  5. Ver logs por bloque"

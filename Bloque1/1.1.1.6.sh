@@ -6,12 +6,13 @@
 set -euo pipefail
 
 ITEM_ID="1.1.1.6"
-MOD_NAME="overlay"          # nombre real del módulo (.ko)
+ITEM_DESC="Deshabilitar ${MOD_NAME}/${ALIAS_NAME}"
+MOD_NAME="overlay"          # nombre real del módulo
 ALIAS_NAME="overlayfs"      # alias usado Nessus
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
 DRY_RUN=0
 FORCE=0
-LOG_SUBDIR="exec" # Por defecto, logs de ejecución
+LOG_SUBDIR="exec"
 
 for arg in "$@"; do
   case "$arg" in
@@ -21,13 +22,12 @@ for arg in "$@"; do
   esac
 done
 
-# ---------- log ----------
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 log() {
-    # Asegurarse de que el directorio de log existe justo antes de escribir
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
 }
@@ -40,15 +40,13 @@ run() {
   fi
 }
 
-log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME}/${ALIAS_NAME} ==="
+log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
-# ---------- contenedores ----------
 if command -v docker &>/dev/null        && docker info --format '{{.Driver}}' 2>/dev/null | grep -qi overlay        && [[ "${FORCE}" -ne 1 ]]; then
   log "ERROR: Docker usa overlay2 → ejecuta con --force para continuar."
   exit 1
 fi
 
-# ---------- descargar módulo cargado ----------
 if lsmod | grep -q "^${MOD_NAME}\b"; then
   log "Módulo ${MOD_NAME} cargado → descargando"
   run "modprobe -r ${MOD_NAME} || true"
@@ -57,7 +55,6 @@ else
   log "Módulo ${MOD_NAME} no está cargado"
 fi
 
-# ---------- /etc/modprobe.d ----------
 need_update=0
 if [[ -f "${CONF_FILE}" ]]; then
   grep -qE "^\s*install\s+${MOD_NAME}\s+/bin/false" "${CONF_FILE}" || need_update=1
@@ -81,7 +78,6 @@ else
   log "${CONF_FILE} ya contiene las directivas necesarias"
 fi
 
-# ---------- módulo en disco ----------
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
 if [[ -n "${MOD_PATHS}" ]]; then
   log "Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
@@ -89,6 +85,6 @@ else
   log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
-log "== Remediación ${ITEM_ID} completada =="
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 
 exit 0

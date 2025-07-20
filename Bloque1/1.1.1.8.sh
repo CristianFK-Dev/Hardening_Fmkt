@@ -6,11 +6,12 @@
 set -euo pipefail
 
 ITEM_ID="1.1.1.8"
+ITEM_DESC="Asegurar que el módulo udf no esté disponible"
 MOD_NAME="udf"
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
 DRY_RUN=0
 FORCE=0
-LOG_SUBDIR="exec" # Por defecto, logs de ejecución
+LOG_SUBDIR="exec"
 
 for arg in "$@"; do
   case "$arg" in
@@ -20,13 +21,11 @@ for arg in "$@"; do
   esac
 done
 
-# ---------- log ----------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 log() {
-    # Asegurarse de que el directorio de log existe justo antes de escribir
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
 }
@@ -41,7 +40,6 @@ run() {
 
 log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
 
-# ---------- detección Azure ----------
 if [[ "${FORCE}" -ne 1 ]]; then
   if [ -d /var/lib/waagent ] || grep -qi 'azure' /sys/class/dmi/id/sys_vendor 2>/dev/null; then
     log "ERROR: Entorno Azure detectado; udf podría ser necesario. Aborta (usa --force para continuar)."
@@ -49,7 +47,6 @@ if [[ "${FORCE}" -ne 1 ]]; then
   fi
 fi
 
-# ---------- descargar módulo cargado ----------
 if lsmod | grep -q "^${MOD_NAME}\\b"; then
   log "Módulo ${MOD_NAME} cargado → descargando"
   run "modprobe -r ${MOD_NAME} || true"
@@ -58,7 +55,6 @@ else
   log "Módulo ${MOD_NAME} no está cargado"
 fi
 
-# ---------- /etc/modprobe.d ----------
 need_update=0
 if [[ -f "${CONF_FILE}" ]]; then
   grep -qE "^\\s*install\\s+${MOD_NAME}\\s+/bin/false" "${CONF_FILE}" || need_update=1
@@ -82,7 +78,6 @@ else
   log "${CONF_FILE} ya contiene las directivas necesarias"
 fi
 
-# ---------- módulo en disco ----------
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
 if [[ -n "${MOD_PATHS}" ]]; then
   log "Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
@@ -90,6 +85,6 @@ else
   log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
-log "== Remediación ${ITEM_ID} completada =="
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 
 exit 0
