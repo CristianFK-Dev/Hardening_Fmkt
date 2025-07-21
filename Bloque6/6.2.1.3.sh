@@ -9,32 +9,64 @@ ITEM_ID="6.2.1.3"
 ITEM_DESC="Asegurar que la auditoría esté habilitada antes de iniciar auditd (audit=1 en GRUB)"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
-LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+DRY_RUN=0
+LOG_SUBDIR="exec"
 
-ensure_root() { [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
-log() { printf '[%s] %s\n' "$(date +'%F %T')" "$*" | tee -a "$LOG_FILE"; }
-
-GRUB_FILE="/etc/default/grub"
-BACKUP="${GRUB_FILE}.bak.$(date +%s)"
-
-mkdir -p "$LOG_DIR"; :> "$LOG_FILE"
-ensure_root
-log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
-log "Backup creado: $BACKUP"
-cp "$GRUB_FILE" "$BACKUP"
-
-if grep -Eq '(^|\s)audit=1(\s|$)' "$GRUB_FILE"; then
-  log "[OK] El parámetro audit=1 ya estaba presente"
-else
-  log "Parámetro audit=1 añadido"
-  sed -i 's/^GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 audit=1"/' "$GRUB_FILE"
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
 fi
 
-log "Ejecutando update-grub ..."
-update-grub
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+GRUB_FILE="/etc/default/grub"
+BACKUP="${GRUB_FILE}.bak.$(date +%Y%m%d%H%M%S)"
 
-exit 0
+log() {
+  printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
+}
+
+run() {
+  [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
+}
+
+ensure_root() {
+  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+}
+
+main() {
+  mkdir -p "$LOG_DIR"
+  : > "$LOG_FILE"
+  log "Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
+  ensure_root
+
+  if [[ ! -f "$GRUB_FILE" ]]; then
+    log "[ERR] Archivo $GRUB_FILE no encontrado"
+    exit 1
+  fi
+
+  log "Backup creado: $BACKUP"
+  [[ $DRY_RUN -eq 0 ]] && cp "$GRUB_FILE" "$BACKUP"
+
+  if grep -Eq '(^|\s)audit=1(\s|$)' "$GRUB_FILE"; then
+    log "[OK] El parámetro audit=1 ya estaba presente"
+  else
+    log "Parámetro audit=1 será añadido"
+    if [[ $DRY_RUN -eq 1 ]]; then
+      log "[DRY-RUN] Añadiría audit=1 en GRUB_CMDLINE_LINUX"
+    else
+      sed -i 's/^GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 audit=1"/' "$GRUB_FILE"
+      log "[OK] audit=1 añadido en GRUB_CMDLINE_LINUX"
+    fi
+  fi
+
+  run "update-grub"
+
+  log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
+  exit 0
+}
+
+main "$@"
