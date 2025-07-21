@@ -29,7 +29,12 @@ log() {
 }
 
 run() {
-  [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
+  if [[ $DRY_RUN -eq 1 ]]; then
+    log "[DRY-RUN] $*"
+  else
+    log "[EXEC]   $*"
+    eval "$@"
+  fi
 }
 
 ensure_root() {
@@ -46,9 +51,10 @@ generate_rules() {
   done < <(findmnt -n -l -k -it "$FILESYSTEMS" | grep -Pv "noexec|nosuid" | awk '{print $1}')
 }
 
-merge_rules() {
+write_rules_file() {
   local tmp_file
   tmp_file=$(mktemp)
+
   generate_rules | sort -u > "$tmp_file"
 
   if [[ -f "$RULE_FILE" ]]; then
@@ -56,8 +62,13 @@ merge_rules() {
     mv "${tmp_file}.merged" "$tmp_file"
   fi
 
-  run "mv '$tmp_file' '$RULE_FILE'"
-  run "chmod 640 '$RULE_FILE'"
+  if [[ $DRY_RUN -eq 1 ]]; then
+    log "[DRY-RUN] Se escribirían las reglas en $RULE_FILE"
+  else
+    mv "$tmp_file" "$RULE_FILE"
+    chmod 640 "$RULE_FILE"
+    log "[OK] Reglas guardadas en: $RULE_FILE"
+  fi
 }
 
 main() {
@@ -66,16 +77,7 @@ main() {
   log "Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
 
-  if [[ $DRY_RUN -eq 1 ]]; then
-    log "[DRY-RUN] Reglas que se generarían:"
-    generate_rules | head -n 20
-    log "[DRY-RUN] ... (total $(generate_rules | wc -l) reglas posibles)"
-    exit 0
-  fi
-
-  log "Generando y aplicando reglas para comandos con bit SUID/SGID..."
-  merge_rules
-  log "[OK] Reglas guardadas en: $RULE_FILE"
+  write_rules_file
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
