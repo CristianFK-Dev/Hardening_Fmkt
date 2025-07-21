@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.1.2 Asegurar que el servicio auditd esté habilitado y activo
+# 6.2.1.2 – Asegurar que el servicio auditd esté habilitado y activo
 # -----------------------------------------------------------------------------
 
 set -euo pipefail
@@ -23,15 +23,19 @@ LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
+
 run() {
   [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
 }
+
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
 }
+
 pkg_installed() {
   dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
 }
+
 install_auditd_pkg() {
   if pkg_installed "auditd"; then
     log "[OK] Paquete auditd ya instalado"
@@ -45,11 +49,10 @@ install_auditd_pkg() {
     fi
   fi
 }
-service_exists() {
-  systemctl list-unit-files | grep -q "^$1\.service"
-}
+
 ensure_service_enabled_active() {
   local svc="$1"
+
   if [[ $DRY_RUN -eq 1 ]]; then
     log "[DRY-RUN] Unmask, enable y start para servicio $svc"
     return
@@ -58,6 +61,8 @@ ensure_service_enabled_active() {
   run "systemctl unmask '$svc' || true"
   run "systemctl enable '$svc'"
   run "systemctl start '$svc'"
+
+  sleep 2 
 
   local state_enabled
   local state_active
@@ -72,6 +77,20 @@ ensure_service_enabled_active() {
   fi
 }
 
+validate_auditctl() {
+  if [[ $DRY_RUN -eq 1 ]]; then
+    log "[DRY-RUN] Validaría respuesta de auditctl -s"
+    return
+  fi
+
+  if auditctl -s &>/dev/null; then
+    log "[OK] auditctl responde correctamente"
+  else
+    log "[ERR] auditctl no responde correctamente. Verificar si auditd está corriendo y configurado"
+    exit 1
+  fi
+}
+
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
@@ -80,10 +99,11 @@ main() {
 
   install_auditd_pkg
   ensure_service_enabled_active "auditd"
+  validate_auditctl
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
-  
+
   exit 0
 }
 
