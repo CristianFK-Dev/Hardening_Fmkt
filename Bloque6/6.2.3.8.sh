@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.8 Ensure events that modify user/group information are collected
-#
-# Añade reglas de auditoría para monitorear archivos y directorios críticos de
-# identidad (-k identity).
+# 6.2.3.8 Asegurar que los eventos que modifican la información de usuario/grupo se recopilan
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
 ITEM_ID="6.2.3.8"
+ITEM_DESC="Asegurar que los eventos que modifican la información de usuario/grupo se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-identity.rules"
+
 RULES=(
 "-w /etc/group -p wa -k identity"
 "-w /etc/passwd -p wa -k identity"
@@ -31,7 +29,6 @@ DRY_RUN=0
 log(){ printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
 ensure_root(){ [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
 rule_present(){
-  # Busca la regla en todos los archivos .rules para evitar duplicados
   local r="$1"
   grep -hFxq -- "$r" /etc/audit/rules.d/*.rules 2>/dev/null
 }
@@ -53,10 +50,7 @@ for rule in "${RULES[@]}"; do
   fi
 done
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

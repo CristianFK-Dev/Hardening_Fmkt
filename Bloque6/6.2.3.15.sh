@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.15 Ensure successful and unsuccessful attempts to use the chcon command are collected
-#
-# Crea regla de auditoría para /usr/bin/chcon (-k perm_chng) capturando ejecuciones
-# por usuarios no privilegiados (UID>=UID_MIN).
+# 6.2.3.15 Asegurar que se recopilan los intentos exitosos y fallidos de usar el comando chcon
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.15"
+ITEM_DESC="Asegurar que los intentos exitosos y fallidos de usar el comando chcon se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=0
@@ -57,6 +56,8 @@ main() {
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
   exit 0
 }
 

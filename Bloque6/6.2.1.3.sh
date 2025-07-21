@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.1.3 Ensure auditing for processes that start prior to auditd is enabled
-# Agrega audit=1 a GRUB_CMDLINE_LINUX y actualiza grub.
+# 6.2.1.3 Asegurar que la auditoría esté habilitada antes de iniciar auditd (audit=1 en GRUB)
 # -----------------------------------------------------------------------------
 
 set -euo pipefail
@@ -35,5 +34,7 @@ fi
 log "Ejecutando update-grub ..."
 update-grub
 
+log "[SUCCESS] ${ITEM_ID} aplicado"
 log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

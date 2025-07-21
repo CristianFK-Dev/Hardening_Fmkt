@@ -1,32 +1,21 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.2.4 Ensure system warns when audit logs are low on space
-#
-# Descripción  : Configura los parámetros space_left_action y
-#                admin_space_left_action en /etc/audit/auditd.conf para
-#                garantizar que el sistema emita alertas (y, si lo requiere,
-#                cambie a modo monousuario) cuando el espacio para logs de
-#                auditoría sea bajo.
-#
-# Requisitos   :
-#   - space_left_action  : email | exec | single | halt   (se usará 'email')
-#   - admin_space_left_action : single | halt             (se usará 'single')
-#
-# Referencias   : CIS Debian 12 v1.1.0 - 6.2.2.4
+# 6.2.2.4 – Asegurar que el sistema advierte cuando los registros de auditoría están bajos de espacio
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.2.4"
+ITEM_DESC="Asegurar que el sistema advierte cuando los registros de auditoría están bajos de espacio"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 AUDIT_CONF="/etc/audit/auditd.conf"
 REQ_SPACE_LEFT_ACTION="email"
 REQ_ADMIN_SPACE_LEFT_ACTION="single"
-
 DRY_RUN=0
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
 fi
@@ -86,7 +75,6 @@ main() {
     exit 1
   fi
 
-  # Backup antes de cambios reales
   if [[ $DRY_RUN -eq 0 ]]; then
     cp -p "$AUDIT_CONF" "${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)"
     log "Backup creado de auditd.conf"
@@ -102,6 +90,7 @@ main() {
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

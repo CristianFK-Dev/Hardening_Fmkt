@@ -67,7 +67,9 @@ main() {
   run "echo 'root_unlock_time = $ROOT_UNLOCK_TIME' >> '$FAILLOCK_CONF'"
   log "[OK] Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
 
+  log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+  
   exit 0
 }
 

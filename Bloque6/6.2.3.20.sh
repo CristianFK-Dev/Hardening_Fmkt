@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.20 Ensure the audit configuration is immutable
-#
-# Añade '-e 2' a /etc/audit/rules.d/99-finalize.rules para poner auditd en modo
-# inmutable. Requiere reinicio para activarse.
+# 6.2.3.20 Asegurar que la configuración de auditoría sea inmutable
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.20"
+ITEM_DESC="Asegurar que la configuración de auditoría sea inmutable"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 FINAL_RULE_FILE="/etc/audit/rules.d/99-finalize.rules"
 RULE="-e 2"
-
 DRY_RUN=0
+
 [[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
 
 log(){ printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
@@ -52,4 +50,6 @@ if [[ $DRY_RUN -eq 0 ]]; then
 fi
 
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

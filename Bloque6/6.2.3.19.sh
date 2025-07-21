@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.19 Ensure kernel module loading, unloading, and modification is collected
-#
-# Crea reglas de auditoría (-k kernel_modules) para:
-#  • Syscalls init_module, finit_module, delete_module, create_module, query_module
-#    en arquitecturas b64 y b32
-#  • Ejecución de /usr/bin/kmod
+# 6.2.3.19 Asegurar que se recopilan los eventos de carga y descarga de módulos del kernel
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.19"
+ITEM_DESC="Asegurar que se recopilan los eventos de carga y descarga de módulos del kernel"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-kernel_modules.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 
@@ -53,10 +49,7 @@ for rule in "${RULES[@]}"; do
   fi
 done
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

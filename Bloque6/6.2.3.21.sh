@@ -1,25 +1,20 @@
 #!/usr/bin/env bash
 
 # =============================================================================
-# 6.2.3.21 – Ensure running and on-disk auditd configuration is the same
-# -----------------------------------------------------------------------------
-# • Verifica si `augenrules --check` detecta cambios pendientes.
-# • Si hay desalineación: ejecuta `augenrules --load`.
-# • Si auditd está en modo inmutable (`enabled = 2`), informa que se requiere reinicio.
-# • Soporta modo --dry-run.
+# 6.2.3.21 – Asegurar que se sincronizan las reglas activas y persistidas de auditd
 # =============================================================================
 
 set -euo pipefail
 
 ITEM_ID="6.2.3.21_AuditRulesSync"
+ITEM_DESC="Asegurar que se sincronizan las reglas activas y persistidas de auditd"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Bloque6/Log"
 mkdir -p "${LOG_DIR}"
-
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
-
 DRY_RUN=0
+
 [[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]] && DRY_RUN=1
 
 ensure_root() {
@@ -42,8 +37,6 @@ run() {
   fi
 }
 
-# ========= Comienza ejecución =========
-
 ensure_root
 log "=== Remediación ${ITEM_ID}: Sincronizar reglas activas y persistidas de auditd ==="
 
@@ -57,7 +50,6 @@ else
 
   run "augenrules --load"
 
-  # Verificar si auditd está en modo inmutable (enabled = 2)
   ENABLED_MODE=$(auditctl -s | grep "^enabled" | awk '{print $2}')
   if [[ "$ENABLED_MODE" == "2" ]]; then
     log "⚠ Las reglas fueron cargadas, pero auditd está en modo inmutable (enabled = 2)."
@@ -67,6 +59,7 @@ else
   fi
 fi
 
-log "== Remediación ${ITEM_ID} completada =="
+log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 
 exit 0

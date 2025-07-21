@@ -35,6 +35,7 @@ fi
 log "Ejecutando update-grub ..."
 update-grub      #  <-- sin -q
 
+log "[SUCCESS] ${ITEM_ID} aplicado"
 log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada (requiere reinicio para tomar efecto) =="
 
 exit 0

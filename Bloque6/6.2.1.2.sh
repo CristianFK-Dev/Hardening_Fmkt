@@ -81,7 +81,9 @@ main() {
   install_auditd_pkg
   ensure_service_enabled_active "auditd"
 
+  log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+  
   exit 0
 }
 

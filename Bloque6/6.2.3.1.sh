@@ -1,25 +1,21 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.1 Ensure changes to system administration scope (sudoers) is collected
-#
-# Descripción : Añade reglas de auditoría para recopilar cambios en /etc/sudoers
-#               y /etc/sudoers.d. Las reglas usan la etiqueta -k scope.
-#
-# Referencia  : CIS Debian 12 v1.1.0 - 6.2.3.1
+# 6.2.3.1 Asegurar que los cambios en el ámbito de administración del sistema (sudoers) se recopilan
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.1"
+ITEM_DESC="Asegurar que los cambios en el ámbito de administración del sistema (sudoers) se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-scope.rules"
 RULE1="-w /etc/sudoers -p wa -k scope"
 RULE2="-w /etc/sudoers.d -p wa -k scope"
-
 DRY_RUN=0
+
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
 fi
@@ -61,7 +57,6 @@ main() {
   ensure_root
 
   if [[ $DRY_RUN -eq 0 ]]; then
-    # Crear archivo si no existe
     touch "$RULE_FILE"
     chmod 640 "$RULE_FILE"
   fi
@@ -69,13 +64,8 @@ main() {
   add_rule "$RULE1"
   add_rule "$RULE2"
 
-  #if [[ $DRY_RUN -eq 0 ]]; then
-  #  log "Recargando reglas con augenrules --load ..."
-  #  augenrules --load
-  #  log "[OK] Reglas cargadas"
-  #fi
-
-  log "[SUCCESS] $ITEM_ID aplicado"
+  log "Reglas guardadas en $RULE_FILE"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.16 Ensure successful and unsuccessful attempts to use the setfacl command are collected
-#
-# Registra ejecuciones de /usr/bin/setfacl (syscall) por usuarios no privilegiados.
-# Etiqueta: -k perm_chng
+# 6.2.3.16 Asegurar que se recopilan los intentos exitosos y fallidos de usar el comando setfacl
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.16"
+ITEM_DESC="Asegurar que se recopilan los intentos exitosos y fallidos de usar el comando setfacl"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=0
@@ -57,6 +56,8 @@ main() {
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
   exit 0
 }
 

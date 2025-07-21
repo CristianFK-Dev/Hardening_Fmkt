@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.2 Ensure actions as another user are always logged
-#
-# Descripción : Añade reglas de auditoría para registrar la ejecución de
-#               procesos con UID efectivo distinto al real (sudo, su, pkexec).
-#               Se etiquetan con -k user_emulation y cubren arquitecturas
-#               b32 y b64.
+# 6.2.3.2 Asegurar que las acciones como otro usuario siempre se registran
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.2"
+ITEM_DESC="Asegurar que las acciones como otro usuario siempre se registran"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
@@ -65,13 +62,8 @@ main() {
   add_rule "$RULE_B64"
   add_rule "$RULE_B32"
 
-  #if [[ $DRY_RUN -eq 0 ]]; then
-  #  log "Recargando reglas (augenrules --load)..."
-  #  augenrules --load
-  #  log "[OK] Reglas de auditoría cargadas"
-  #fi
-
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

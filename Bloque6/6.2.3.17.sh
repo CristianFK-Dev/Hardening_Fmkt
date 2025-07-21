@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.17 Ensure successful and unsuccessful attempts to use the chacl command are collected
-#
-# Crea regla de auditoría para /usr/bin/chacl (-k perm_chng) registrando
-# ejecuciones por usuarios no privilegiados.
+# 6.2.3.17 Asegurar que los intentos exitosos y fallidos de usar el comando chacl se recopilan
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.17"
+ITEM_DESC="Asegurar que los intentos exitosos y fallidos de usar el comando chacl se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-perm_chng.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 
@@ -42,10 +40,7 @@ else
   fi
 fi
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

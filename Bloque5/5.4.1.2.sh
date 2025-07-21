@@ -57,6 +57,7 @@ main() {
   log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada (dry-run=$DRY_RUN) ==="
   patch_login_defs
   patch_users
+  log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }

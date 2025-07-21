@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.10 Ensure successful file system mounts are collected
-#
-# Añade reglas de auditoría para registrar syscalls 'mount' ejecutados por
-# usuarios no privilegiados (UID >= UID_MIN) tanto para arquitecturas b32 y b64.
-# Etiqueta: -k mounts
+# 6.2.3.10 Asegurar que los montajes de sistemas de archivos exitosos se recopilan
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.10"
+ITEM_DESC="Asegurar que los montajes de sistemas de archivos exitosos se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-mounts.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 
@@ -51,10 +48,7 @@ for rule in "${RULES[@]}"; do
   fi
 done
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

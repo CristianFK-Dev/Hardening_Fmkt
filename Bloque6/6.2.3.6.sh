@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.6 Ensure use of privileged commands are collected
-#
-# Escanea archivos con bit setuid/setgid (perm /6000) en todos los sistemas de
-# archivos montados sin nosuid/noexec y genera reglas de auditoría individuales
-# (-k privileged) en /etc/audit/rules.d/50-privileged.rules
-#
-# Basado en la guía CIS Debian 12 v1.1.0
+# 6.2.3.6 Asegurar que el uso de comandos privilegiados se recopila 
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.6"
+ITEM_DESC="Asegurar que el uso de comandos privilegiados se recopila"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
@@ -64,10 +60,8 @@ main() {
   log "Escaneando archivos privilegiados y generando reglas..."
   merge_rules
   log "Reglas guardadas en $RULE_FILE"
-
-  #log "Recargando reglas con augenrules..."
-  #augenrules --load
-  #log "[SUCCESS] $ITEM_ID aplicado"
+  log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

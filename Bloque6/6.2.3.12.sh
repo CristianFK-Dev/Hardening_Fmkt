@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.12 Ensure login and logout events are collected
-#
-# Monitorea /var/log/lastlog y /var/run/faillock para detectar eventos de inicio
-# y cierre de sesión. Etiqueta: -k logins
+# 6.2.3.12 Asegurar que los eventos de inicio y cierre de sesión se recopilan
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.12"
+ITEM_DESC="Asegurar que los eventos de inicio y cierre de sesión se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-login.rules"
+
 RULES=(
 "-w /var/log/lastlog -p wa -k logins"
 "-w /var/run/faillock -p wa -k logins"
@@ -46,10 +45,7 @@ for rule in "${RULES[@]}"; do
   fi
 done
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

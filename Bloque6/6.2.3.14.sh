@@ -2,11 +2,12 @@
 # -----------------------------------------------------------------------------
 # 6.2.3.14 Asegurar que se recopilan los eventos que modifican los controles de acceso 
 #          obligatorio del sistema
-# Monitorea cambios en /etc/apparmor/ y /etc/apparmor.d/ usando etiqueta -k MAC-policy
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.14"
+ITEM_DESC="Asegurar que se recopilan los eventos que modifican los controles de acceso obligatorio del sistema"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=0
@@ -58,6 +59,8 @@ main() {
   done
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+  
   exit 0
 }
 

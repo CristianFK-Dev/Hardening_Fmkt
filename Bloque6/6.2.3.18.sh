@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.18 Ensure successful and unsuccessful attempts to use the usermod command are collected
-#
-# Crea regla de auditoría para /usr/sbin/usermod (-k usermod) registrando
-# ejecuciones por usuarios no privilegiados.
+# 6.2.3.18 Asegurar que los intentos exitosos y fallidos de usar el comando usermod se recopilan
 # -----------------------------------------------------------------------------
+
 set -euo pipefail
 
 ITEM_ID="6.2.3.18"
+ITEM_DESC="Asegurar que los intentos exitosos y fallidos de usar el comando usermod se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="${BLOCK_DIR}/Log"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-
 RULE_FILE="/etc/audit/rules.d/50-usermod.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
-
 RULE="-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>=${UID_MIN} -F auid!=unset -k usermod"
-
 DRY_RUN=0
+
 [[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
 
 log(){ printf '[%s] %s\n' "$(date +'%F %T')" "$1" | tee -a "$LOG_FILE"; }
@@ -42,10 +39,7 @@ else
   fi
 fi
 
-#if [[ $DRY_RUN -eq 0 ]]; then
-#  log "Recargando reglas con augenrules..."
-#  augenrules --load
-#fi
-
 log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+
 exit 0

@@ -29,9 +29,9 @@ run_all() {
 
   # Lista blanca de scripts que pueden recibir --force
   local FORCE_SCRIPTS=(
-    "1.1.1.6.sh"
-    "1.1.1.7.sh"
-    "1.1.1.8.sh"
+    #"1.1.1.6.sh"
+    #"1.1.1.7.sh"
+    #"1.1.1.8.sh"
   )
 
   # Lista negra de scripts a ignorar en modo auditoría
@@ -41,6 +41,9 @@ run_all() {
 
   # Lista negra de scripts a ignorar en modo ejecución
   local EXEC_BLACKLIST=(
+    "1.1.1.6.sh"
+    "1.1.1.7.sh"
+    "1.1.1.8.sh"
     "5.1.8.sh"
     "5.2.4.sh"
   )

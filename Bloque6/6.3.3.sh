@@ -2,12 +2,12 @@
 
 # =============================================================================
 # 6.3.3 - Asegurar que AIDE esté instalado (Integridad herramientas de auditoría)
-# Solo instala el paquete AIDE si no está presente
 # =============================================================================
 
 set -euo pipefail
 
 ITEM_ID="6.3.3_AIDE_Install"
+ITEM_DESC="Asegurar que AIDE esté instalado (Integridad herramientas de auditoría)"
 SCRIPT_NAME="$(basename "$0")"
 LOG_DIR="./Log"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
@@ -37,4 +37,5 @@ else
   log "AIDE fue instalado correctamente."
 fi
 
-log "== Remediación ${ITEM_ID} completada =="
+log "[SUCCESS] ${ITEM_ID} aplicado"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
