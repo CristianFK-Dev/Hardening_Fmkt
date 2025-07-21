@@ -36,7 +36,7 @@ ensure_root() {
 }
 
 get_current_value() {
-  grep -E '^[[:space:]]*max_log_file[[:space:]]*=' "$AUDIT_CONF" | head -n1 | awk -F= '{gsub(/ /,"",$2); print $2}'
+  grep -E '^[[:space:]]*max_log_file[[:space:]]*=' "$AUDIT_CONF" | head -n1 | awk -F= '{gsub(/[[:space:]]*/,"",$2); print $2}'
 }
 
 main() {
@@ -70,8 +70,8 @@ main() {
       log "[OK] max_log_file actualizado a $REQUIRED_VALUE MB"
     fi
 
-    #run "systemctl restart auditd"
-    #log "[OK] Servicio auditd reiniciado"
+    run "systemctl restart auditd"
+    log "[OK] Servicio auditd reiniciado"
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
