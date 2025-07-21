@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.2.4 – Asegurar que el sistema advierte cuando los registros de auditoría están bajos de espacio
+# 6.2.2.4 – Asegurar que el sistema advierte cuando los registros de auditoría
+#           están bajos de espacio, y normaliza sintaxis clave=valor
 # -----------------------------------------------------------------------------
 
 set -euo pipefail
@@ -16,9 +17,7 @@ REQ_SPACE_LEFT_ACTION="email"
 REQ_ADMIN_SPACE_LEFT_ACTION="single"
 DRY_RUN=0
 
-if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
-  DRY_RUN=1
-fi
+[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
 
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
@@ -33,7 +32,7 @@ ensure_root() {
 
 get_value() {
   local key="$1"
-  grep -iE "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF" |     head -n1 | awk -F= '{gsub(/[[:space:]]*/,"",$2); print tolower($2)}'
+  grep -iE "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF" | head -n1 | awk -F= '{gsub(/[[:space:]]*/,"",$2); print tolower($2)}'
 }
 
 set_param() {
@@ -48,7 +47,7 @@ set_param() {
 
   if [[ $DRY_RUN -eq 1 ]]; then
     if [[ -z "$current" ]]; then
-      log "[DRY-RUN] Añadiría ${key} = ${desired}"
+      log "[DRY-RUN] Añadiría ${key}=${desired}"
     else
       log "[DRY-RUN] Cambiaría ${key} de ${current} a ${desired}"
     fi
@@ -56,11 +55,25 @@ set_param() {
   fi
 
   if ! grep -iEq "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF"; then
-    echo "${key} = ${desired}" >> "$AUDIT_CONF"
-    log "Añadido ${key} = ${desired}"
+    echo "${key}=${desired}" >> "$AUDIT_CONF"
+    log "Añadido ${key}=${desired}"
   else
-    sed -i -E "s/^[[:space:]]*${key}[[:space:]]*=.*/${key} = ${desired}/I" "$AUDIT_CONF"
+    sed -i -E "s/^[[:space:]]*${key}[[:space:]]*=.*/${key}=${desired}/I" "$AUDIT_CONF"
     log "Actualizado ${key} a ${desired}"
+  fi
+}
+
+normalize_conf_syntax() {
+  log "Normalizando formato clave=valor en ${AUDIT_CONF} ..."
+  if [[ $DRY_RUN -eq 1 ]]; then
+    log "[DRY-RUN] No se modifica el archivo, solo se mostrarían cambios"
+    grep -E '^[[:space:]]*[a-zA-Z0-9_.-]+[[:space:]]*=' "$AUDIT_CONF" | while read -r line; do
+      norm=$(echo "$line" | sed -E 's/^([[:space:]]*[a-zA-Z0-9_.-]+)[[:space:]]*=[[:space:]]*/\1=/')
+      [[ "$line" != "$norm" ]] && log "[DRY-RUN] → $line → $norm"
+    done
+  else
+    sed -i -E 's/^([[:space:]]*[a-zA-Z0-9_.-]+)[[:space:]]*=[[:space:]]*/\1=/' "$AUDIT_CONF"
+    log "Formato clave=valor normalizado"
   fi
 }
 
@@ -80,6 +93,7 @@ main() {
     log "Backup creado de auditd.conf"
   fi
 
+  normalize_conf_syntax
   set_param "space_left_action" "$REQ_SPACE_LEFT_ACTION"
   set_param "admin_space_left_action" "$REQ_ADMIN_SPACE_LEFT_ACTION"
 
