@@ -70,8 +70,8 @@ main() {
       log "[OK] max_log_file_action añadido con $REQUIRED_VALUE"
     fi
 
-    run "systemctl restart auditd"
-    log "[OK] Servicio auditd reiniciado"
+    #run "systemctl restart auditd"
+    #log "[OK] Servicio auditd reiniciado"
   fi
 
   log "[SUCCESS] ${ITEM_ID} aplicado"
