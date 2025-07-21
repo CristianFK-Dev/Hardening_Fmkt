@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# 6.2.3.1 Asegurar que los cambios en el ámbito de administración del sistema (sudoers) se recopilan
+# 6.2.3.1 – Asegurar que los cambios en el ámbito de administración del sistema (sudoers) se recopilan
 # -----------------------------------------------------------------------------
 
 set -euo pipefail
@@ -9,26 +9,31 @@ ITEM_ID="6.2.3.1"
 ITEM_DESC="Asegurar que los cambios en el ámbito de administración del sistema (sudoers) se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
-LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-RULE_FILE="/etc/audit/rules.d/50-scope.rules"
-RULE1="-w /etc/sudoers -p wa -k scope"
-RULE2="-w /etc/sudoers.d -p wa -k scope"
 DRY_RUN=0
+LOG_SUBDIR="exec"
 
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
+  LOG_SUBDIR="audit"
 fi
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
+RULE_FILE="/etc/audit/rules.d/50-scope.rules"
+RULE1="-w /etc/sudoers -p wa -k scope"
+RULE2="-w /etc/sudoers.d -p wa -k scope"
 
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
 
+run() {
+  [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
+}
+
 ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Debe ejecutarse como root" >&2
-    exit 1
-  fi
+  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 rule_present() {
@@ -41,30 +46,26 @@ add_rule() {
   if rule_present "$rule"; then
     log "[OK] Regla ya presente: $rule"
   else
-    if [[ $DRY_RUN -eq 1 ]]; then
-      log "[DRY-RUN] Añadiría regla: $rule"
-    else
-      echo "$rule" >> "$RULE_FILE"
-      log "Regla añadida: $rule"
-    fi
+    run "echo '$rule' >> '$RULE_FILE'"
+    log "[OK] Regla añadida: $rule"
   fi
 }
 
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
-  log "Ejecutando $SCRIPT_NAME – $ITEM_ID"
+  log "Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
 
   if [[ $DRY_RUN -eq 0 ]]; then
-    touch "$RULE_FILE"
-    chmod 640 "$RULE_FILE"
+    run "touch '$RULE_FILE'"
+    run "chmod 640 '$RULE_FILE'"
   fi
 
   add_rule "$RULE1"
   add_rule "$RULE2"
 
-  log "Reglas guardadas en $RULE_FILE"
+  log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
