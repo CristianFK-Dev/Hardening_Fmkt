@@ -80,11 +80,6 @@ main() {
   set_param "space_left_action" "$REQ_SPACE_LEFT_ACTION"
   set_param "admin_space_left_action" "$REQ_ADMIN_SPACE_LEFT_ACTION"
 
-  #if [[ $DRY_RUN -eq 0 ]]; then
-  #  run "systemctl restart auditd"
-  #  log "[OK] Servicio auditd reiniciado"
-  #fi
-
   log "[SUCCESS] ${ITEM_ID} aplicado"
   log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0

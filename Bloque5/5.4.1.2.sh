@@ -11,6 +11,7 @@ LOGIN_DEFS="/etc/login.defs"
 BACKUP_DIR="/var/backups/login_defs"
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 if [[ "${1:-}" == "--dry-run" ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
