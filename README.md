@@ -4,7 +4,7 @@ Este script interactivo de Bash automatiza el proceso de hardening (fortalecimie
 
 ## Requisitos
 
-*   Bash
+
 
 *   Privilegios de root (el script debe ejecutarse con `sudo`)
 
@@ -67,7 +67,7 @@ El proyecto debe organizarse en directorios `Bloque*`, cada uno representando un
 # Justificaciones y mitigaciones
 
 
-**Justificación para omitir controles 1.1.2.x (particiones separadas)**
+### **Justificación para omitir controles 1.1.2.x (particiones separadas)**
 
 Los siguientes controles, relativos a la creación de particiones separadas, no aplican en este entorno:
 
@@ -84,7 +84,7 @@ Este sistema opera sobre una instancia de infraestructura en la nube (AWS EC2). 
 **Mitigación del riesgo:**
 La arquitectura en la nube, junto con el registro externo y los snapshots, mitiga los riesgos asociados a la falta de particiones separadas.
 
-**Justificación para el control 5.2.4 (sudo con contraseña)**
+### **Justificación para el control 5.2.4 (sudo con contraseña)**
 
 El control 5.2.4, que exige el uso de contraseña para la escalada de privilegios con `sudo`, se ha adaptado.  Actualmente, se permite el uso de `sudo` sin contraseña (`NOPASSWD`) para usuarios técnicos específicos, como `nessus`.
 
@@ -96,7 +96,7 @@ Esta excepción facilita la ejecución de escaneos de seguridad automatizados, n
 
 El monitoreo de acceso y la restricción de permisos a usuarios técnicos mitigan el riesgo asociado con la configuración `NOPASSWD`.
 
-**Justificación para la deshabilitación de módulos del kernel**
+### **Justificación para la deshabilitación de módulos del kernel**
 
 Varios scripts se encargan de deshabilitar módulos del kernel que no son necesarios para el funcionamiento estándar del servidor (`overlayfs`, `squashfs`, `udf`, etc.), con el objetivo de reducir la superficie de ataque del sistema.
 
