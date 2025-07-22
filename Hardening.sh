@@ -92,7 +92,6 @@ run_all() {
       # Captura stdout y stderr, y comprueba el código de salida al mismo tiempo
       # Pasamos los argumentos en $script_args
       if ! output=$("$script" $script_args 2>&1); then
-        # El script falló de verdad (código de salida != 0)
         local msg; msg=$(echo "$output" | head -n 1)
         log_line "${bname} | ${sname} | FAIL | ${msg}"
         echo -e "${R}${bname}/${sname} FAIL${NC}"

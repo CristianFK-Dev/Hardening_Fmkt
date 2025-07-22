@@ -16,14 +16,13 @@ Este script interactivo de Bash automatiza el proceso de hardening (fortalecimie
 
     ```bash
     git clone https://github.com/Golidor24/Hardening_Fmkt.git
-    
-    cd Hardening_Fmkt
-
     ```
 
-2.  **Dar permisos y ejecutar el script:**
+2.  **Navegar al directorio, dar permisos y ejecutar el script:**
 
     ```bash
+    cd Hardening_Fmkt
+
     sudo chmod +x Hardening.sh
 
     sudo ./Hardening.sh
@@ -42,6 +41,21 @@ Este script interactivo de Bash automatiza el proceso de hardening (fortalecimie
     *   **Ver logs por bloque:** Permite explorar los logs específicos de cada bloque de hardening, si existen.
     
     *   **Salir:** Termina la ejecución del script.
+
+### Opciones de Ejecución de Scripts
+
+Los scripts individuales pueden aceptar los siguientes parámetros para un control más granular:
+
+*   `--dry-run` o `-n`: Simula la ejecución del script. No se aplicará ningún cambio en el sistema, pero se generará un log en el directorio `Log/audit/` detallando las acciones que se habrían realizado. Es ideal para auditorías.
+
+*   `--force`: Fuerza la ejecución de ciertos scripts que incluyen salvaguardas para evitar romper funcionalidades existentes. Por ejemplo, el script para deshabilitar `squashfs` no se ejecutará si detecta paquetes `snap` instalados. Usar `--force` omitirá esta comprobación. **Utilizar con extrema precaución.**
+
+### Scripts de Utilidad
+
+Dentro del repositorio existen scripts que no aplican un control de hardening, sino que sirven como herramientas de apoyo.
+
+*   `Bloque6/6.1.AuditClean.sh`: Este script **deshabilita y limpia por completo la configuración de `auditd`**. Es útil para restablecer el subsistema de auditoría a un estado limpio antes de aplicar un nuevo conjunto de reglas. **Su uso es destructivo y eliminará todas las reglas de auditoría y la configuración existente.**
+
 
 **Estructura del proyecto**
 
@@ -81,3 +95,11 @@ Esta excepción facilita la ejecución de escaneos de seguridad automatizados, n
 **Mitigación del riesgo:**
 
 El monitoreo de acceso y la restricción de permisos a usuarios técnicos mitigan el riesgo asociado con la configuración `NOPASSWD`.
+
+**Justificación para la deshabilitación de módulos del kernel**
+
+Varios scripts se encargan de deshabilitar módulos del kernel que no son necesarios para el funcionamiento estándar del servidor (`overlayfs`, `squashfs`, `udf`, etc.), con el objetivo de reducir la superficie de ataque del sistema.
+
+**Mitigación del riesgo:**
+
+Para evitar interrupciones en servicios que dependen de estos módulos (como Docker, Snap o entornos cloud como Azure), los scripts correspondientes incluyen comprobaciones previas y se detendrán si detectan un posible conflicto. Para estos casos, se puede utilizar la opción `--force` bajo la responsabilidad del administrador del sistema, una vez verificado que el cambio no impactará negativamente.
