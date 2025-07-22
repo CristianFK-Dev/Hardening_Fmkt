@@ -1,41 +1,64 @@
 #!/usr/bin/env bash
 
 # =============================================================================
-# 6.3.3 - Asegurar que AIDE esté instalado (Integridad herramientas de auditoría)
+# 6.3.3 – Asegurar que AIDE esté instalado (Integridad herramientas de auditoría)
 # =============================================================================
 
 set -euo pipefail
 
-ITEM_ID="6.3.3_AIDE_Install"
+ITEM_ID="6.3.3"
 ITEM_DESC="Asegurar que AIDE esté instalado (Integridad herramientas de auditoría)"
 SCRIPT_NAME="$(basename "$0")"
-LOG_DIR="./Log"
-LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DRY_RUN=0
+LOG_SUBDIR="exec"
 
+[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && { DRY_RUN=1; LOG_SUBDIR="audit"; }
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "$LOG_DIR"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 log() {
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE"
 }
 
 ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Este script debe ser ejecutado como root." >&2
-    exit 1
+  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+}
+
+run() {
+  if [[ $DRY_RUN -eq 1 ]]; then
+    log "[DRY-RUN] $*"
+  else
+    log "[EXEC]   $*"
+    eval "$@"
   fi
 }
 
-ensure_root
+main() {
+  ensure_root
+  : > "$LOG_FILE"
+  log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
 
-log "=== Remediación ${ITEM_ID}: Verificar si AIDE está instalado ==="
+  if command -v aide >/dev/null 2>&1; then
+    log "[OK] AIDE ya está instalado en el sistema."
+  else
+    log "[WARN] AIDE no está instalado."
 
-if command -v aide >/dev/null 2>&1; then
-  log "AIDE ya está instalado en el sistema."
-else
-  log "→ AIDE no está instalado. Procediendo a instalar..."
-  apt-get update -y && apt-get install -y aide
-  log "AIDE fue instalado correctamente."
-fi
+    run "apt-get update -y"
+    run "apt-get install -y aide"
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    if command -v aide >/dev/null 2>&1; then
+      log "[OK] AIDE fue instalado correctamente."
+    else
+      log "[ERR] Error al instalar AIDE."
+      exit 1
+    fi
+  fi
+
+  log "[SUCCESS] ${ITEM_ID} aplicado correctamente"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+}
+
+main "$@"

@@ -6,26 +6,25 @@
 
 set -euo pipefail
 
-ITEM_ID="6.2.3.21_AuditRulesSync"
+ITEM_ID="6.2.3.21"
 ITEM_DESC="Asegurar que se sincronizan las reglas activas y persistidas de auditd"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Bloque6/Log"
-mkdir -p "${LOG_DIR}"
-LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+
 DRY_RUN=0
+LOG_SUBDIR="exec"
+[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && { DRY_RUN=1; LOG_SUBDIR="audit"; }
 
-[[ ${1:-} == "--dry-run" || ${1:-} == "-n" ]] && DRY_RUN=1
-
-ensure_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "ERROR: Este script debe ser ejecutado como root." >&2
-    exit 1
-  fi
-}
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+mkdir -p "$LOG_DIR"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 log() {
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "$LOG_FILE"
+}
+
+ensure_root() {
+  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 run() {
@@ -37,29 +36,33 @@ run() {
   fi
 }
 
-ensure_root
-log "=== Remediación ${ITEM_ID}: Sincronizar reglas activas y persistidas de auditd ==="
+main() {
+  ensure_root
+  : > "$LOG_FILE"
+  log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
 
-CHECK_OUTPUT=$(augenrules --check 2>&1 || true)
+  CHECK_OUTPUT=$(augenrules --check 2>&1 || true)
 
-if echo "$CHECK_OUTPUT" | grep -q "No change"; then
-  log "✔ Las reglas activas y en disco ya están sincronizadas. No se requiere acción."
-else
-  log "✘ Se detectó desalineación entre reglas activas y en disco:"
-  log "$CHECK_OUTPUT"
-
-  run "augenrules --load"
-
-  ENABLED_MODE=$(auditctl -s | grep "^enabled" | awk '{print $2}')
-  if [[ "$ENABLED_MODE" == "2" ]]; then
-    log "⚠ Las reglas fueron cargadas, pero auditd está en modo inmutable (enabled = 2)."
-    log "   → Es necesario reiniciar el sistema para que las nuevas reglas tengan efecto."
+  if echo "$CHECK_OUTPUT" | grep -q "No change"; then
+    log "[OK] Reglas activas y persistidas ya están sincronizadas"
   else
-    log "✔ Reglas cargadas correctamente con 'augenrules --load'."
+    log "[WARN] Desalineación detectada entre reglas activas y persistidas"
+    log "[INFO] Resultado de augenrules --check:"
+    log "$CHECK_OUTPUT"
+
+    run "augenrules --load"
+
+    ENABLED_MODE=$(auditctl -s | awk '/^enabled/ {print $2}')
+    if [[ "$ENABLED_MODE" == "2" ]]; then
+      log "[NOTICE] Las reglas fueron cargadas, pero auditd está en modo inmutable (enabled=2)"
+      log "[NOTICE] Se requiere reinicio para aplicar los cambios"
+    else
+      log "[OK] Reglas sincronizadas con éxito usando 'augenrules --load'"
+    fi
   fi
-fi
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+  log "[SUCCESS] ${ITEM_ID} aplicado correctamente"
+  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+}
 
-exit 0
+main "$@"
