@@ -97,16 +97,18 @@ run_all() {
         log_line "${bname} | ${sname} | FAIL | ${msg}"
         echo -e "${R}${bname}/${sname} FAIL${NC}"
       else
-        # El script se ejecutó correctamente (código de salida 0)
-        if [[ $mode == "audit" ]] && [[ "$output" == *"[DRY-RUN]"* ]]; then
-          # Modo auditoría y el script encontró algo que cambiar
-          log_line "${bname} | ${sname} | AUDIT: PENDING |"
-          echo -e "${Y}${bname}/${sname} AUDIT: PENDING${NC}"
-        else
-          # Modo ejecución, o modo auditoría sin cambios necesarios
-          log_line "${bname} | ${sname} | OK |"
-          echo -e "${G}${bname}/${sname} OK${NC}"
-        fi
+          if [[ $mode == "audit" ]]; then
+            if echo "$output" | grep -q "\[DRY-RUN\].*PENDING"; then
+              log_line "${bname} | ${sname} | AUDIT: PENDING |"
+              echo -e "${Y}${bname}/${sname} AUDIT: PENDING${NC}"
+            else
+              log_line "${bname} | ${sname} | OK |"
+              echo -e "${G}${bname}/${sname} OK${NC}"
+            fi
+          else
+            log_line "${bname} | ${sname} | OK |"
+            echo -e "${G}${bname}/${sname} OK${NC}"
+          fi
       fi
     done
   done
