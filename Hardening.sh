@@ -184,7 +184,6 @@ ver_logs_por_bloque() {
         break
     done
 }
-
 welcome_screen() {
   clear
   echo -e "${LIGHT_BLUE}"
