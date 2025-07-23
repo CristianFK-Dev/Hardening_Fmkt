@@ -83,7 +83,7 @@ Este sistema opera sobre una instancia de infraestructura en la nube (AWS EC2). 
 **Mitigación del riesgo:**
 La arquitectura en la nube, junto con el registro externo y los snapshots, mitiga los riesgos asociados a la falta de particiones separadas.
 
-### **Justificación para el control 5.2.4 (sudo con contraseña)**
+### **Justificación para el control 5.2.4 (sudo sin contraseña)**
 
 El control 5.2.4, que exige el uso de contraseña para la escalada de privilegios con `sudo`, se ha adaptado.  Actualmente, se permite el uso de `sudo` sin contraseña (`NOPASSWD`) para usuarios técnicos específicos, como `nessus`.
 
