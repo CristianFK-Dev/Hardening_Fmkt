@@ -66,7 +66,6 @@ El proyecto debe organizarse en directorios `Bloque*`, cada uno representando un
 
 # Justificaciones y mitigaciones
 
-
 ### **Justificación para omitir controles 1.1.2.x (particiones separadas)**
 
 Los siguientes controles, relativos a la creación de particiones separadas, no aplican en este entorno:

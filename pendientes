@@ -1,5 +1,7 @@
 
-Terminar de revisar bloque 6
+#Terminar de revisar bloque 6
+
+#Esto es de Hardening.sh , se prueba mejora en logica de verificaciones para audit
 
  # El script se ejecutó correctamente (código de salida 0)
         if [[ $mode == "audit" ]] && [[ "$output" == *"[DRY-RUN]"* ]]; then
