@@ -63,7 +63,7 @@ if [[ "${need_update}" -eq 1 ]]; then
     } > "${CONF_FILE}"
     chmod 644 "${CONF_FILE}"
   else
-    log "[DRY-RUN] Escribiría líneas install/blacklist en ${CONF_FILE}"
+    log "[DRY-RUN] PENDING: escribiría líneas install/blacklist en ${CONF_FILE}"
   fi
 else
   log "${CONF_FILE} ya contiene las directivas necesarias"

@@ -10,7 +10,7 @@ ITEM_DESC="Asegurar que el módulo sctp no esté disponible"
 MOD_NAME="sctp"
 CONF_FILE="/etc/modprobe.d/${MOD_NAME}.conf"
 DRY_RUN=0
-LOG_SUBDIR="exec" 
+LOG_SUBDIR="exec"
 
 for arg in "$@"; do
   case "$arg" in
@@ -23,10 +23,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+
 log() {
-    mkdir -p "$(dirname "${LOG_FILE}")"
-    echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
+  mkdir -p "$(dirname "${LOG_FILE}")"
+  echo -e "[$(date +%F %T)] $*" | tee -a "${LOG_FILE}"
 }
+
 run() {
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     log "[DRY-RUN] $*"
@@ -40,8 +42,12 @@ log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
 
 if lsmod | grep -q "^${MOD_NAME}\b"; then
   log "Módulo ${MOD_NAME} cargado → descargando"
-  run "modprobe -r ${MOD_NAME} || true"
-  run "rmmod ${MOD_NAME}     || true"
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    log "[DRY-RUN] PENDING: descargaría el módulo ${MOD_NAME}"
+  else
+    run "modprobe -r ${MOD_NAME} || true"
+    run "rmmod ${MOD_NAME}     || true"
+  fi
 else
   log "Módulo ${MOD_NAME} no está cargado"
 fi
@@ -63,7 +69,7 @@ if [[ "${need_update}" -eq 1 ]]; then
     } > "${CONF_FILE}"
     chmod 644 "${CONF_FILE}"
   else
-    log "[DRY-RUN] Escribiría líneas install/blacklist en ${CONF_FILE}"
+    log "[DRY-RUN] PENDING: escribiría líneas install/blacklist en ${CONF_FILE}"
   fi
 else
   log "${CONF_FILE} ya contiene las directivas necesarias"
