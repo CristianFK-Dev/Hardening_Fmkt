@@ -85,7 +85,7 @@ La arquitectura en la nube, junto con el registro externo y los snapshots, mitig
 
 ### **Justificación para el control 5.2.4 (sudo sin contraseña)**
 
-El control 5.2.4, que exige el uso de contraseña para la escalada de privilegios con `sudo`, se ha adaptado.  Actualmente, se permite el uso de `sudo` sin contraseña (`NOPASSWD`) para usuarios técnicos específicos, como `nessus`.
+El control 5.2.4, que exige el uso de contraseña para la escalada de privilegios con `sudo`, se ha adaptado.  Actualmente, se permite el uso de `sudo` sin contraseña (`NOPASSWD`) para usuarios técnicos específicos, como `admin` `nessus` `nessusauth`.
 
 **Justificación:**
 
