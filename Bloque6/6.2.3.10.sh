@@ -9,7 +9,17 @@ ITEM_ID="6.2.3.10"
 ITEM_DESC="Asegurar que los montajes de sistemas de archivos exitosos se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
+DRY_RUN=0
+LOG_SUBDIR="exec"
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run|-n) DRY_RUN=1; LOG_SUBDIR="audit" ;;
+    *) echo "Uso: $0 [--dry-run|-n]" >&2; exit 1 ;;
+  esac
+done
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-mounts.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
@@ -18,9 +28,6 @@ RULES=(
 "-a always,exit -F arch=b32 -S mount -F auid>=${UID_MIN} -F auid!=unset -k mounts"
 "-a always,exit -F arch=b64 -S mount -F auid>=${UID_MIN} -F auid!=unset -k mounts"
 )
-
-DRY_RUN=0
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
 
 log() {
   local msg="$1"

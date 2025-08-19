@@ -9,7 +9,7 @@ ITEM_ID="6.2.3.13"
 ITEM_DESC="Asegurar que los eventos de eliminación de archivos por usuarios se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-delete.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
@@ -19,8 +19,10 @@ RULES=(
 "-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
 )
 
-DRY_RUN=0
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
+DRY_RUN="${DRY_RUN:-0}"
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+    DRY_RUN=1
+fi
 
 log() {
   local msg="$1"

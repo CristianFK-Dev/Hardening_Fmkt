@@ -97,7 +97,7 @@ run_all() {
         echo -e "${R}${bname}/${sname} FAIL${NC}"
       else
           if [[ $mode == "audit" ]]; then
-            if echo "$output" | grep -q "\[DRY-RUN\].*PENDING"; then
+            if echo "$output" | grep -q "\[DRY-RUN\]"; then
               log_line "${bname} | ${sname} | AUDIT: PENDING |"
               echo -e "${Y}${bname}/${sname} AUDIT: PENDING${NC}"
             else

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# ID_SCRIPT Descripción corta del script
+#------------------------------------------------------------------------------
+
+set -euo pipefail
+
+# Variables globales
+ITEM_ID="X.X.X.X"
+ITEM_DESC="Descripción completa del control"
+SCRIPT_NAME="$(basename "$0")"
+BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOG_SUBDIR="${LOG_SUBDIR:-$(date +'%Y%m%d_%H%M%S')}"
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
+# Control de dry-run
+DRY_RUN="${DRY_RUN:-0}"
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+    DRY_RUN=1
+fi
+
+# Funciones comunes
+log() {
+    local msg="$1"
+    printf '[%s] %s\n' "$(date +'%F %T')" "$msg" | tee -a "$LOG_FILE"
+}
+
+ensure_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo "[ERR] Debe ejecutarse como root" >&2
+        exit 1
+    fi
+}
+
+# Inicio del script
+mkdir -p "$LOG_DIR"
+:> "$LOG_FILE"
+log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID"
+ensure_root
+
+# Lógica específica del script
+# ...
+
+# Finalización
+log "[SUCCESS] ${ITEM_ID} aplicado correctamente"
+log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+exit 0

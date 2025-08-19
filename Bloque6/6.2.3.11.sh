@@ -9,7 +9,8 @@ ITEM_ID="6.2.3.11"
 ITEM_DESC="Asegurar que los eventos de sesión se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log"
+#LOG_SUBDIR="${LOG_SUBDIR:-$(date +'%Y%m%d_%H%M%S')}"
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-session.rules"
 
@@ -19,8 +20,10 @@ RULES=(
 "-w /var/log/btmp -p wa -k session"
 )
 
-DRY_RUN=0
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && DRY_RUN=1
+DRY_RUN="${DRY_RUN:-0}"
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+    DRY_RUN=1
+fi
 
 log() {
   local msg="$1"

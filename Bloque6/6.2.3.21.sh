@@ -10,9 +10,9 @@ ITEM_ID="6.2.3.21"
 ITEM_DESC="Asegurar que se sincronizan las reglas activas y persistidas de auditd"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 DRY_RUN=0
 LOG_SUBDIR="exec"
+
 [[ ${1:-} =~ ^(--dry-run|-n)$ ]] && { DRY_RUN=1; LOG_SUBDIR="audit"; }
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
