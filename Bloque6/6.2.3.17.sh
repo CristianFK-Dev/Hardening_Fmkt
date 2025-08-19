@@ -12,12 +12,15 @@ BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=0
 LOG_SUBDIR="exec"
 
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && { DRY_RUN=1; LOG_SUBDIR="audit"; }
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
-RULE_FILE="/etc/audit/rules.d/50-perm_chng.rules"
 
+RULE_FILE="/etc/audit/rules.d/50-perm_chng.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 RULE="-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>=${UID_MIN} -F auid!=unset -k perm_chng"
 

@@ -12,7 +12,10 @@ BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN=0
 LOG_SUBDIR="exec"
 
-[[ ${1:-} =~ ^(--dry-run|-n)$ ]] && { DRY_RUN=1; LOG_SUBDIR="audit"; }
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"

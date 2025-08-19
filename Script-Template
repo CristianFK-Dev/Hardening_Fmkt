@@ -10,14 +10,15 @@ ITEM_ID="X.X.X.X"
 ITEM_DESC="Descripción completa del control"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_SUBDIR="${LOG_SUBDIR:-$(date +'%Y%m%d_%H%M%S')}"
+DRY_RUN=0
+LOG_SUBDIR="exec"
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 
 # Control de dry-run
-DRY_RUN="${DRY_RUN:-0}"
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
-    DRY_RUN=1
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
 fi
 
 # Funciones comunes

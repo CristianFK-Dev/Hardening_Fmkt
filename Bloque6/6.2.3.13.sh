@@ -14,11 +14,6 @@ UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 DRY_RUN=0
 LOG_SUBDIR="exec"
 
-RULES=(
-"-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
-"-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
-)
-
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
@@ -26,6 +21,11 @@ fi
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
+RULES=(
+"-a always,exit -F arch=b64 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
+"-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
+)
 
 log() {
   local msg="$1"
