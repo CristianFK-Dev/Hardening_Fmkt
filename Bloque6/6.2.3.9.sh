@@ -17,9 +17,9 @@ if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   LOG_SUBDIR="audit"
 fi
 
-LOG_DIR="${BLOCK_DIR}/Log"
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
 RULE_FILE="/etc/audit/rules.d/50-perm_mod.rules"
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"

@@ -9,21 +9,22 @@ ITEM_ID="6.2.3.12"
 ITEM_DESC="Asegurar que los eventos de inicio y cierre de sesión se recopilan"
 SCRIPT_NAME="$(basename "$0")"
 BLOCK_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
-LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-login.rules"
 DRY_RUN=0
 LOG_SUBDIR="exec"
-
-RULES=(
-"-w /var/log/lastlog -p wa -k logins"
-"-w /var/run/faillock -p wa -k logins"
-)
 
 if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
   DRY_RUN=1
   LOG_SUBDIR="audit"
 fi
+
+LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
+LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
+RULES=(
+"-w /var/log/lastlog -p wa -k logins"
+"-w /var/run/faillock -p wa -k logins"
+)
 
 log() {
   local msg="$1"

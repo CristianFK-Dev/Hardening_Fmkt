@@ -19,6 +19,7 @@ fi
 
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
+
 RULE_FILE="/etc/audit/rules.d/50-mounts.rules"
 UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)
 
