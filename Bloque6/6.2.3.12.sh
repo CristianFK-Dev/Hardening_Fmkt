@@ -19,10 +19,12 @@ RULES=(
 "-w /var/run/faillock -p wa -k logins"
 )
 
-DRY_RUN="${DRY_RUN:-0}"
-if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
-    DRY_RUN=1
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run|-n) DRY_RUN=1; LOG_SUBDIR="audit" ;;
+    *) echo "Uso: $0 [--dry-run|-n]" >&2; exit 1 ;;
+  esac
+done
 
 log() {
   local msg="$1"

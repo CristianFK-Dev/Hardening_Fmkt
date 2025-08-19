@@ -20,10 +20,12 @@ RULES=(
 "-a always,exit -F arch=b32 -S rename,unlink,unlinkat,renameat -F auid>=${UID_MIN} -F auid!=unset -k delete"
 )
 
-DRY_RUN="${DRY_RUN:-0}"
-if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
-    DRY_RUN=1
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run|-n) DRY_RUN=1; LOG_SUBDIR="audit" ;;
+    *) echo "Uso: $0 [--dry-run|-n]" >&2; exit 1 ;;
+  esac
+done
 
 log() {
   local msg="$1"
