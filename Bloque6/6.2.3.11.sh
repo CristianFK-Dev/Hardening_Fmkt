@@ -14,6 +14,7 @@ LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-session.rules"
 DRY_RUN=0
+LOG_SUBDIR="exec"
 
 RULES=(
 "-w /var/run/utmp -p wa -k session"
