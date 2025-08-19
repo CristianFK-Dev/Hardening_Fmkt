@@ -13,6 +13,7 @@ LOG_SUBDIR="exec"
 LOG_DIR="${BLOCK_DIR}/Log/${LOG_SUBDIR}"
 LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 RULE_FILE="/etc/audit/rules.d/50-session.rules"
+DRY_RUN=0
 
 RULES=(
 "-w /var/run/utmp -p wa -k session"
@@ -20,12 +21,10 @@ RULES=(
 "-w /var/log/btmp -p wa -k session"
 )
 
-for arg in "$@"; do
-  case "$arg" in
-    --dry-run|-n) DRY_RUN=1; LOG_SUBDIR="audit" ;;
-    *) echo "Uso: $0 [--dry-run|-n]" >&2; exit 1 ;;
-  esac
-done
+if [[ ${1:-} =~ ^(--dry-run|-n)$ ]]; then
+  DRY_RUN=1
+  LOG_SUBDIR="audit"
+fi
 
 log() {
   local msg="$1"
