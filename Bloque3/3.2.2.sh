@@ -27,13 +27,17 @@ log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
 }
+
 run() {
-  if [[ "${DRY_RUN}" -eq 1 ]]; then
-    log "[DRY-RUN] $*"
-  else
-    log "[EXEC] $*"
-    eval "$@"
-  fi
+    local cmd="$*"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Pendiente: $cmd"
+        return 0
+    else
+        log "[EXEC] $cmd"
+        eval "$@"
+        return $?
+    fi
 }
 
 log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
@@ -80,6 +84,4 @@ else
   log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 exit 0
