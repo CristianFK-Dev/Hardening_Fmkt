@@ -28,14 +28,19 @@ mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 log() {
   printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"
 }
+
 run() {
-  if [[ "${DRY_RUN}" -eq 1 ]]; then
-    log "[DRY-RUN] $*"
-  else
-    log "[EXEC]   $*"
-    eval "$@"
-  fi
+    local cmd="$*"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Pendiente: $cmd"
+        return 0
+    else
+        log "[EXEC] $cmd"
+        eval "$@"
+        return $?
+    fi
 }
+
 main() {
   log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
 

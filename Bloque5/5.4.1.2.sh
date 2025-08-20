@@ -22,7 +22,19 @@ mkdir -p "${LOG_DIR}" "${BACKUP_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*" | tee -a "${LOG_FILE}"; }
-run(){ [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }; }
+
+run() {
+    local cmd="$*"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Pendiente: $cmd"
+        return 0
+    else
+        log "[EXEC] $cmd"
+        eval "$@"
+        return $?
+    fi
+}
+
 backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKUP_DIR}/$(basename "$f").$(date +%Y%m%d-%H%M%S)'"; }
 
 ensure_root() { [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }; }
