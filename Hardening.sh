@@ -162,6 +162,27 @@ ver_logs_bloque() {
     while true; do
         clear
         echo -e "\n${LIGHT_BLUE}=== Logs de ${bloque} ===${NC}"
+        echo "1) Logs de ejecución (exec)"
+        echo "2) Logs de auditoría (audit)"
+        echo -e "${Y}v) Volver al menú de bloques${NC}"
+        
+        read -r -p "Seleccione tipo de logs (1-2) o 'v' para volver: " tipo
+        
+        case $tipo in
+            v|V) return ;;
+            1) ver_logs_tipo "$bloque" "exec" ;;
+            2) ver_logs_tipo "$bloque" "audit" ;;
+            *) echo -e "${R}Opción inválida${NC}"; sleep 1 ;;
+        esac
+    done
+}
+
+ver_logs_tipo() {
+    local bloque="$1"
+    local tipo="$2"
+    while true; do
+        clear
+        echo -e "\n${LIGHT_BLUE}=== Logs de ${bloque} (${tipo}) ===${NC}"
         local i=1
         local logs=()
         
@@ -169,9 +190,15 @@ ver_logs_bloque() {
             logs+=("$log")
             echo "$i) $(basename "$log")"
             ((i++))
-        done < <(find "${BASE_DIR}/${bloque}/Log" -type f -name "*.log" | sort)
+        done < <(find "${BASE_DIR}/${bloque}/Log/${tipo}" -type f -name "*.log" | sort)
         
-        echo -e "${Y}v) Volver al menú de bloques${NC}"
+        if [ ${#logs[@]} -eq 0 ]; then
+            echo -e "${Y}No hay logs disponibles en esta categoría${NC}"
+            sleep 2
+            return
+        fi
+        
+        echo -e "${Y}v) Volver al menú anterior${NC}"
         
         read -r -p "Seleccione un log (1-$((i-1))) o 'v' para volver: " opcion
         
