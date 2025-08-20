@@ -134,19 +134,23 @@ ver_logs_por_bloque() {
     while true; do
         clear
         echo -e "\n${LIGHT_BLUE}=== Logs por Bloque ===${NC}"
-        echo "1) Bloque 1 - Configuración del sistema de archivos"
-        echo "2) Bloque 3 - Logging y Auditoría"
-        echo "3) Bloque 5 - Control de Acceso"
-        echo "4) Bloque 6 - Auditoría del Sistema"
+        echo "1) Bloque 1"
+        echo "2) Bloque 2"
+        echo "3) Bloque 3"
+        echo "4) Bloque 4"
+        echo "5) Bloque 5"
+        echo "6) Bloque 6"
         echo -e "${Y}v) Volver al menú principal${NC}"
         
         read -r -p "Seleccione un bloque (1-6) o 'v' para volver: " opcion
         
         case $opcion in
             1) ver_logs_bloque "Bloque1" ;;
-            2) ver_logs_bloque "Bloque3" ;;
-            3) ver_logs_bloque "Bloque5" ;;
-            4) ver_logs_bloque "Bloque6" ;;
+            2) ver_logs_bloque "Bloque2" ;;
+            3) ver_logs_bloque "Bloque3" ;;
+            4) ver_logs_bloque "Bloque4" ;;
+            5) ver_logs_bloque "Bloque5" ;;
+            6) ver_logs_bloque "Bloque6" ;;
             v|V) return ;;
             *) echo -e "${R}Opción inválida${NC}" ;;
         esac
