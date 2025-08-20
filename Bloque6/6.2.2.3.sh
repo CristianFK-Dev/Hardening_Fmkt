@@ -95,8 +95,6 @@ main() {
   set_param "disk_full_action" "$REQ_DISK_FULL_ACTION"
   set_param "disk_error_action" "$REQ_DISK_ERROR_ACTION"
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

@@ -81,8 +81,6 @@ main() {
     fi
   done
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

@@ -65,8 +65,6 @@ main() {
   add_rule "$RULE1"
   add_rule "$RULE2"
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

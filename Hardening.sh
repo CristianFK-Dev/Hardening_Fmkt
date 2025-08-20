@@ -131,56 +131,66 @@ ver_log_general() {
 }
 
 ver_logs_por_bloque() {
-    clear
-    print_menu_header "LOGS POR BLOQUE"
-
-    local bloques=()
-    for dir in "$BASE_DIR"/Bloque*/; do
-        [[ -d "$dir" ]] && bloques+=("$(basename "$dir")")
-    done
-
-    if [[ ${#bloques[@]} -eq 0 ]]; then
-        echo -e "${R}No se encontraron directorios de Bloque.${NC}"
-        return
-    fi
-
-    PS3=$'\nSeleccione un bloque (o 0 para volver al menú principal): '
-    select bloque in "${bloques[@]}"; do
-        if [[ -z "$bloque" ]]; then echo "Volviendo..."; return; fi
-
+    while true; do
         clear
-        print_menu_header "TIPO DE LOG - $bloque"
-        local log_base_dir="$BASE_DIR/$bloque/Log"
-        PS3=$'\nSeleccione el tipo de log (o 0 para volver a la selección de bloque): '
-        select log_type in "Auditoría" "Ejecución"; do
-            if [[ -z "$log_type" ]]; then echo "Volviendo..."; break; fi
+        echo -e "\n${LIGHT_BLUE}=== Logs por Bloque ===${NC}"
+        echo "1) Bloque 1 - Configuración del sistema de archivos"
+        echo "2) Bloque 3 - Logging y Auditoría"
+        echo "3) Bloque 5 - Control de Acceso"
+        echo "4) Bloque 6 - Auditoría del Sistema"
+        echo -e "${Y}v) Volver al menú principal${NC}"
+        
+        read -r -p "Seleccione un bloque (1-6) o 'v' para volver: " opcion
+        
+        case $opcion in
+            1) ver_logs_bloque "Bloque1" ;;
+            2) ver_logs_bloque "Bloque3" ;;
+            3) ver_logs_bloque "Bloque5" ;;
+            4) ver_logs_bloque "Bloque6" ;;
+            v|V) return ;;
+            *) echo -e "${R}Opción inválida${NC}" ;;
+        esac
+    done
+}
 
-            local log_subdir
-            [[ "$log_type" == "Auditoría" ]] && log_subdir="audit" || log_subdir="exec"
-            local log_dir="${log_base_dir}/${log_subdir}"
-            
-            clear
-            print_menu_header "LOGS DE ${log_type^^} - $bloque"
-            
-            if [[ ! -d "$log_dir" ]] || [[ -z "$(ls -A "$log_dir")" ]]; then
-                echo -e "${R}No se encontraron logs de '$log_type' en $bloque.${NC}"
-                break
-            fi
-
-            local log_files=("$log_dir"/*.log)
-            PS3=$'\nSeleccione un log para ver (o 0 para volver a la selección de tipo): '
-            select log_file in "${log_files[@]}"; do
-                if [[ -z "$log_file" ]]; then echo "Volviendo..."; break; fi
-                echo -e "${LIGHT_BLUE}\nMostrando: $(basename "$log_file")${NC}"
-                less "$log_file"
-                # Vuelve al menú de tipo de log después de ver uno
-                break
-            done
-            # Vuelve al menú de bloques después de salir del submenú de logs
-            break
-        done
-        # Vuelve al menú principal después de salir del menú de bloques
-        break
+ver_logs_bloque() {
+    local bloque="$1"
+    while true; do
+        clear
+        echo -e "\n${LIGHT_BLUE}=== Logs de ${bloque} ===${NC}"
+        local i=1
+        local logs=()
+        
+        while IFS= read -r log; do
+            logs+=("$log")
+            echo "$i) $(basename "$log")"
+            ((i++))
+        done < <(find "${BASE_DIR}/${bloque}/Log" -type f -name "*.log" | sort)
+        
+        echo -e "${Y}v) Volver al menú de bloques${NC}"
+        
+        read -r -p "Seleccione un log (1-$((i-1))) o 'v' para volver: " opcion
+        
+        case $opcion in
+            v|V) return ;;
+            [1-9]|[1-9][0-9])
+                if [ "$opcion" -lt "$i" ]; then
+                    clear
+                    echo -e "${LIGHT_BLUE}=== ${logs[$((opcion-1))]} ===${NC}"
+                    cat "${logs[$((opcion-1))]}"
+                    echo -e "\nPresione Enter para continuar o 'v' para volver..."
+                    read -r respuesta
+                    [ "$respuesta" = "v" ] || [ "$respuesta" = "V" ] && return
+                else
+                    echo -e "${R}Opción inválida${NC}"
+                    sleep 1
+                fi
+                ;;
+            *)
+                echo -e "${R}Opción inválida${NC}"
+                sleep 1
+                ;;
+        esac
     done
 }
 welcome_screen() {

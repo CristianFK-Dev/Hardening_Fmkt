@@ -101,8 +101,6 @@ main() {
   ensure_service_enabled_active "auditd"
   validate_auditctl
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

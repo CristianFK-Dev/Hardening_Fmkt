@@ -23,15 +23,19 @@ LOG_FILE="${LOG_DIR}/${ITEM_ID}.log"
 log() {
   printf '[%s] %s\n' "$(date +'%Y-%m-%d %H:%M:%S')" "$*" | tee -a "$LOG_FILE"
 }
+
 run() {
   [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
 }
+
 ensure_root() {
   [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
 }
+
 pkg_installed() {
   dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
 }
+
 ensure_package() {
   local pkg="$1"
   if pkg_installed "$pkg"; then
@@ -56,8 +60,6 @@ main() {
   ensure_package auditd
   ensure_package audispd-plugins
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
   exit 0
 }
 

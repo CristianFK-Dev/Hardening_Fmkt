@@ -65,8 +65,6 @@ main() {
   add_rule "$RULE_B64"
   add_rule "$RULE_B32"
 
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"

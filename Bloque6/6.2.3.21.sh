@@ -64,8 +64,6 @@ main() {
     fi
   fi
 
-  log "[SUCCESS] ${ITEM_ID} aplicado correctamente"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 }
 
 main "$@"
