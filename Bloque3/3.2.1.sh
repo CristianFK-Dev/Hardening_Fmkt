@@ -26,6 +26,7 @@ LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
+}
 
 run() {
     local cmd="$*"
