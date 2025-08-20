@@ -30,7 +30,7 @@ log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
 }
-# Template para la función run() en los scripts
+
 run() {
     local cmd="$*"
     if [[ $DRY_RUN -eq 1 ]]; then
