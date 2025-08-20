@@ -67,18 +67,21 @@ else
 fi
 
 if [[ "${need_update}" -eq 1 ]]; then
-  log "Actualizando ${CONF_FILE} para deshabilitar ${MOD_NAME}"
-  if [[ "${DRY_RUN}" -eq 0 ]]; then
-    {
-      echo "install ${MOD_NAME} /bin/false"
-      echo "blacklist ${MOD_NAME}"
-    } > "${CONF_FILE}"
-    chmod 644 "${CONF_FILE}"
-  else
-    log "[DRY-RUN] Escribiría líneas install/blacklist en ${CONF_FILE}"
-  fi
+    if [[ "${DRY_RUN}" -eq 1 ]]; then
+        log "[DRY-RUN] Pendiente: Actualizar ${CONF_FILE}"
+        log "[DRY-RUN] - Añadir: install ${MOD_NAME} /bin/false"
+        log "[DRY-RUN] - Añadir: blacklist ${MOD_NAME}"
+    else
+        log "[EXEC] Actualizando ${CONF_FILE}"
+        {
+            echo "install ${MOD_NAME} /bin/false"
+            echo "blacklist ${MOD_NAME}"
+        } > "${CONF_FILE}"
+        chmod 644 "${CONF_FILE}"
+        log "[SUCCESS] Archivo actualizado"
+    fi
 else
-  log "${CONF_FILE} ya contiene las directivas necesarias"
+    log "[OK] ${CONF_FILE} ya contiene las directivas necesarias"
 fi
 
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
