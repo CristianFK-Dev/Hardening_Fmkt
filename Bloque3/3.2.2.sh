@@ -74,7 +74,7 @@ if [[ "${need_update}" -eq 1 ]]; then
     log "[DRY-RUN] PENDING: escribiría líneas install/blacklist en ${CONF_FILE}"
   fi
 else
-  log "${CONF_FILE} ya contiene las directivas necesarias"
+  log "[OK] ${CONF_FILE} ya contiene las directivas necesarias"
 fi
 
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)

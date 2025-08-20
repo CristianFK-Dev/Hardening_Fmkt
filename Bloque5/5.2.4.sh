@@ -90,7 +90,7 @@ main() {
     fi
   done
 
-  [[ $MODIFIED -eq 0 ]] && log "[INFO] Sistema ya conforme. Sin cambios aplicados."
+  [[ $MODIFIED -eq 0 ]] && log "[OK] Sistema ya conforme. Sin cambios aplicados."
 
   exit 0
 }

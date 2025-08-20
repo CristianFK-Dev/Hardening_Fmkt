@@ -46,13 +46,13 @@ main() {
     exit 1
   fi
 
-  log "Backup creado: $BACKUP"
+  log "[INFO] Backup creado: $BACKUP"
   [[ $DRY_RUN -eq 0 ]] && cp "$GRUB_FILE" "$BACKUP"
 
   if grep -Eq '(^|\s)audit=1(\s|$)' "$GRUB_FILE"; then
     log "[OK] El parámetro audit=1 ya estaba presente"
   else
-    log "Parámetro audit=1 será añadido"
+    log "[INFO] Parámetro audit=1 será añadido"
     if [[ $DRY_RUN -eq 1 ]]; then
       log "[DRY-RUN] Añadiría audit=1 en GRUB_CMDLINE_LINUX"
     else
