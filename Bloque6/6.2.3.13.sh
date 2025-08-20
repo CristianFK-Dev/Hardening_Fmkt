@@ -47,7 +47,7 @@ rule_present() {
 # Inicio
 mkdir -p "$LOG_DIR"
 : > "$LOG_FILE"
-log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID"
+log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID"
 ensure_root
 
 if [[ -z "$UID_MIN" ]]; then

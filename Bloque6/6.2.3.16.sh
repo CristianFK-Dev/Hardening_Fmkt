@@ -31,7 +31,7 @@ ensure_root(){ [[ $EUID -eq 0 ]] || { echo 'Debe ser root' >&2; exit 1; }; }
 main() {
   mkdir -p "$LOG_DIR"
   :> "$LOG_FILE"
-  log "Run $SCRIPT_NAME – $ITEM_ID"
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID"
   ensure_root
 
   if [[ -z "$UID_MIN" ]]; then

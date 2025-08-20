@@ -68,7 +68,7 @@ set_param() {
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
-  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then

@@ -254,10 +254,12 @@ while true; do
 
   case "$choice" in
     1)
+        clear
         run_all "exec"
         echo -e "${R}\n### Reinicie el sistema de forma manual para impactar cambios ###${NC}"
         ;;
     2)
+        clear
         run_all "audit"
         ;;
     3)

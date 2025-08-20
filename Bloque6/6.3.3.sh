@@ -42,7 +42,7 @@ run() {
 main() {
   ensure_root
   : > "$LOG_FILE"
-  log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
 
   if command -v aide >/dev/null 2>&1; then
     log "[OK] AIDE ya está instalado en el sistema."

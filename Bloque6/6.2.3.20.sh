@@ -37,7 +37,7 @@ rule_present() {
 main() {
   mkdir -p "$LOG_DIR"
   : > "$LOG_FILE"
-  log "[EXEC] Ejecutando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
 
   if rule_present; then

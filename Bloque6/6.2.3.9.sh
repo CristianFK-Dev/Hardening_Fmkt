@@ -42,7 +42,7 @@ rule_present() {
 }
 
 main() {
-  log "Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
 
   UID_MIN=$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)

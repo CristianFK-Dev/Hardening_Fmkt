@@ -38,7 +38,7 @@ rule_present(){
 main() {
   mkdir -p "$LOG_DIR"
   :> "$LOG_FILE"
-  log "Run $SCRIPT_NAME – $ITEM_ID"
+  log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID"
   ensure_root
   if [[ $DRY_RUN -eq 0 ]]; then
     run "touch '$RULE_FILE'"
