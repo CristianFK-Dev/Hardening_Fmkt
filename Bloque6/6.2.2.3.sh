@@ -31,7 +31,7 @@ run() {
   [[ $DRY_RUN -eq 1 ]] && log "[DRY-RUN] $*" || { log "[EXEC]   $*"; eval "$@"; }
 }
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Debe ejecutarse como root."; exit 1; }
 }
 get_value() {
   local key="$1"
@@ -58,10 +58,10 @@ set_param() {
 
   if ! grep -iEq "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF"; then
     echo "${key} = ${desired}" >> "$AUDIT_CONF"
-    log "Añadido ${key} = ${desired}"
+    log "[EXEC] Añadido ${key} = ${desired}"
   else
     sed -i -E "s/^[[:space:]]*${key}[[:space:]]*=.*/${key} = ${desired}/I" "$AUDIT_CONF"
-    log "Actualizado ${key} a ${desired}"
+    log "[EXEC] Actualizado ${key} a ${desired}"
   fi
 }
 
@@ -72,8 +72,8 @@ main() {
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
-    log "[ERR] Archivo ${AUDIT_CONF} no encontrado"
-    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    log "[ERROR] Archivo ${AUDIT_CONF} no encontrado"
+    log "[INFO] == Remediación ${ITEM_ID}: ${ITEM_DESC} finalizada =="
     exit 1
   fi
 
@@ -83,13 +83,13 @@ main() {
 
   if [[ "$full_action" == "$REQ_DISK_FULL_ACTION" && "$error_action" == "$REQ_DISK_ERROR_ACTION" ]]; then
     log "[OK] Configuración ya conforme: disk_full_action=$full_action, disk_error_action=$error_action"
-    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    log "[INFO] == Remediación ${ITEM_ID}: ${ITEM_DESC} finalizada =="
     exit 0
   fi
 
   if [[ $DRY_RUN -eq 0 ]]; then
     run "cp -p '$AUDIT_CONF' '${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)'"
-    log "Backup creado de auditd.conf"
+    log "[EXEC] Backup creado de auditd.conf"
   fi
 
   set_param "disk_full_action" "$REQ_DISK_FULL_ACTION"

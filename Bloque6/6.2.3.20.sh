@@ -27,7 +27,7 @@ log() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 rule_present() {
@@ -57,9 +57,9 @@ main() {
     augenrules --load || true
 
     if auditctl -s | grep -q "enabled 2"; then
-      log "[OK] Modo inmutable ya está activo"
+      log "[SUCCESS] Modo inmutable ya está activo"
     else
-      log "[NOTICE] Modo inmutable pendiente. Se activará tras reinicio"
+      log "[INFO] Modo inmutable pendiente. Se activará tras reinicio"
     fi
   fi
 

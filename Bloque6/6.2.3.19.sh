@@ -34,7 +34,7 @@ log() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 rule_present() {
@@ -49,7 +49,7 @@ main() {
   ensure_root
 
   if [[ -z "$UID_MIN" ]]; then
-    log "[ERR] UID_MIN no encontrado en /etc/login.defs"
+    log "[ERROR] UID_MIN no encontrado en /etc/login.defs"
     exit 1
   fi
 

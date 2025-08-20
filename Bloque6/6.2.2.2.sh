@@ -32,7 +32,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 get_current_value() {
@@ -46,7 +46,7 @@ main() {
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
-    log "[ERR] Archivo $AUDIT_CONF no encontrado"
+    log "[ERROR] Archivo $AUDIT_CONF no encontrado"
     exit 1
   fi
 
@@ -57,21 +57,21 @@ main() {
   else
     timestamp=$(date +%Y%m%d%H%M%S)
     BACKUP="${AUDIT_CONF}.bak.${timestamp}"
-    log "Backup creado: $BACKUP"
+    log "[EXEC] Backup creado: $BACKUP"
     [[ $DRY_RUN -eq 0 ]] && cp -p "$AUDIT_CONF" "$BACKUP"
 
     if grep -qiE '^[[:space:]]*max_log_file_action[[:space:]]*=' "$AUDIT_CONF"; then
-      log "Parámetro max_log_file_action encontrado: $current_value – se actualizará"
+      log "[INFO] Parámetro max_log_file_action encontrado: $current_value – se actualizará"
       run "sed -i -E 's/^[[:space:]]*max_log_file_action[[:space:]]*=.*/max_log_file_action = $REQUIRED_VALUE/' '$AUDIT_CONF'"
-      log "[OK] max_log_file_action actualizado a $REQUIRED_VALUE"
+      log "[SUCCESS] max_log_file_action actualizado a $REQUIRED_VALUE"
     else
-      log "Parámetro max_log_file_action no encontrado – se añadirá"
+      log "[INFO] Parámetro max_log_file_action no encontrado – se añadirá"
       run "echo 'max_log_file_action = $REQUIRED_VALUE' >> '$AUDIT_CONF'"
-      log "[OK] max_log_file_action añadido con $REQUIRED_VALUE"
+      log "[SUCCESS] max_log_file_action añadido con $REQUIRED_VALUE"
     fi
 
     run "systemctl restart auditd"
-    log "[OK] Servicio auditd reiniciado"
+    log "[SUCCESS] Servicio auditd reiniciado"
   fi
 
   exit 0

@@ -38,7 +38,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 generate_rules() {
@@ -67,7 +67,7 @@ write_rules_file() {
   else
     mv "$tmp_file" "$RULE_FILE"
     chmod 640 "$RULE_FILE"
-    log "[OK] Reglas guardadas en: $RULE_FILE"
+    log "[EXEC] Reglas guardadas en: $RULE_FILE"
   fi
 }
 

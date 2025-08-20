@@ -35,7 +35,7 @@ log() {
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "[ERR] Debe ejecutarse como root" >&2
+    echo "[ERROR] Debe ejecutarse como root" >&2
     exit 1
   fi
 }
@@ -51,7 +51,7 @@ log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID"
 ensure_root
 
 if [[ -z "$UID_MIN" ]]; then
-  log "[ERR] No se pudo determinar UID_MIN desde /etc/login.defs"
+  log "[ERROR] No se pudo determinar UID_MIN desde /etc/login.defs"
   exit 1
 fi
 

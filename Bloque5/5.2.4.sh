@@ -42,7 +42,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 main() {
@@ -69,7 +69,7 @@ main() {
       run "cp --preserve=mode,ownership,timestamps '$FILE' '$BACKUP'"
 
       TMP=$(mktemp)
-      log "[INFO] Procesando $FILE → $TMP"
+      log "[EXEC] Procesando $FILE → $TMP"
       awk -v tag="$TAG" -v today="$(date +%F)" -v exclude="$EXCLUDE" -v pattern="$PATTERN" '
         $0 ~ exclude {print; next}
         $0 ~ pattern && $0 !~ tag {print tag, today, $0; next}

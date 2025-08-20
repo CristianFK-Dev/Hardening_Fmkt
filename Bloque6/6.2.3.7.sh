@@ -39,7 +39,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 rule_present() {
@@ -54,7 +54,7 @@ main() {
   ensure_root
 
   if [[ -z "$UID_MIN" ]]; then
-    log "[ERR] No se pudo obtener UID_MIN de /etc/login.defs"
+    log "[ERROR] No se pudo obtener UID_MIN de /etc/login.defs"
     exit 1
   fi
 
@@ -62,7 +62,7 @@ main() {
     if [[ -f "$RULE_FILE" ]]; then
       BACKUP="${RULE_FILE}.bak.$(date +%Y%m%d%H%M%S)"
       cp -p "$RULE_FILE" "$BACKUP"
-      log "[OK] Backup creado: $BACKUP"
+      log "[EXEC] Backup creado: $BACKUP"
     fi
     touch "$RULE_FILE"
     chmod 640 "$RULE_FILE"
@@ -76,7 +76,7 @@ main() {
         log "[DRY-RUN] Añadiría: $rule"
       else
         echo "$rule" >> "$RULE_FILE"
-        log "[OK] Regla añadida: $rule"
+        log "[EXEC] Regla añadida: $rule"
       fi
     fi
   done

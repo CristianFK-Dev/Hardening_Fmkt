@@ -27,7 +27,7 @@ log() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 run() {
@@ -47,15 +47,15 @@ main() {
   if command -v aide >/dev/null 2>&1; then
     log "[OK] AIDE ya está instalado en el sistema."
   else
-    log "[WARN] AIDE no está instalado."
+    log "[FAIL] AIDE no está instalado."
 
     run "apt-get update -y"
     run "apt-get install -y aide"
 
     if command -v aide >/dev/null 2>&1; then
-      log "[OK] AIDE fue instalado correctamente."
+      log "[SUCCESS] AIDE fue instalado correctamente."
     else
-      log "[ERR] Error al instalar AIDE."
+      log "[FAIL] Error al instalar AIDE."
       exit 1
     fi
   fi

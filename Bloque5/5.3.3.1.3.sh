@@ -44,7 +44,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 main() {
@@ -52,8 +52,9 @@ main() {
   log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   if [[ ! -f "$FAILLOCK_CONF" ]]; then
-    log "[INFO] Archivo $FAILLOCK_CONF no existe. Creando..."
+    log "[EXEC] Archivo $FAILLOCK_CONF no existe. Creando..."
     run "touch '$FAILLOCK_CONF'"
+    log "[SUCCESS] Archivo $FAILLOCK_CONF creado"
   fi
 
   if grep -Eq '^\s*(even_deny_root|root_unlock_time\s*=\s*[6-9][0-9]|[1-9][0-9]{2,})\b' "$FAILLOCK_CONF"; then
@@ -64,7 +65,7 @@ main() {
 
   BACKUP_FILE="${BACKUP_DIR}/faillock.conf.$(date +%Y%m%d-%H%M%S)"
   run "cp --preserve=mode,ownership,timestamps '$FAILLOCK_CONF' '$BACKUP_FILE'"
-  log "[INFO] Backup creado: $BACKUP_FILE"
+  log "[EXEC] Backup creado: $BACKUP_FILE"
 
   run "echo >> '$FAILLOCK_CONF'"
   run "echo '# Añadido por $SCRIPT_NAME para cumplimiento $ITEM_ID' >> '$FAILLOCK_CONF'"

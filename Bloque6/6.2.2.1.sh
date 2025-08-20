@@ -57,21 +57,21 @@ main() {
   else
     timestamp=$(date +%Y%m%d%H%M%S)
     BACKUP="${AUDIT_CONF}.bak.${timestamp}"
-    log "Backup creado: $BACKUP"
+    log "[EXEC] Backup creado: $BACKUP"
     [[ $DRY_RUN -eq 0 ]] && cp -p "$AUDIT_CONF" "$BACKUP"
 
     if [[ -z "$current_value" ]]; then
-      log "Parámetro max_log_file no encontrado – se añadirá"
+      log "[INFO] Parámetro max_log_file no encontrado – se añadirá"
       run "echo 'max_log_file = $REQUIRED_VALUE' >> '$AUDIT_CONF'"
-      log "[OK] max_log_file agregado con $REQUIRED_VALUE MB"
+      log "[SUCCESS] max_log_file agregado con $REQUIRED_VALUE MB"
     else
-      log "Parámetro max_log_file encontrado: $current_value – se actualizará"
+      log "[INFO] Parámetro max_log_file encontrado: $current_value – se actualizará"
       run "sed -i -E 's/^[[:space:]]*max_log_file[[:space:]]*=.*/max_log_file = $REQUIRED_VALUE/' '$AUDIT_CONF'"
-      log "[OK] max_log_file actualizado a $REQUIRED_VALUE MB"
+      log "[SUCCESS] max_log_file actualizado a $REQUIRED_VALUE MB"
     fi
 
     run "systemctl restart auditd"
-    log "[OK] Servicio auditd reiniciado"
+    log "[SUCCESS] Servicio auditd reiniciado"
   fi
 
   exit 0

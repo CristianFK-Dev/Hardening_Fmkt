@@ -35,7 +35,7 @@ main() {
   ensure_root
 
   if [[ -z "$UID_MIN" ]]; then
-    log "[ERR] UID_MIN no encontrado"
+    log "[ERROR] UID_MIN no encontrado"
     exit 1
   fi
 
@@ -51,7 +51,7 @@ main() {
       log "[DRY-RUN] Añadiría: $RULE"
     else
       echo "$RULE" >> "$RULE_FILE"
-      log "Regla añadida"
+      log "[EXEC] Regla añadida: $RULE"
     fi
   fi
 

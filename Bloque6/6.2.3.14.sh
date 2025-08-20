@@ -53,7 +53,7 @@ main() {
         log "[DRY-RUN] Añadiría: $rule"
       else
         echo "$rule" >> "$RULE_FILE"
-        log "Regla añadida: $rule"
+        log "[EXEC] Regla añadida: $rule"
       fi
     fi
   done

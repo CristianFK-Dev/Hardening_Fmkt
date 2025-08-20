@@ -29,7 +29,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 pkg_installed() {
@@ -45,7 +45,7 @@ install_auditd_pkg() {
     else
       run "apt-get update -qq"
       run "DEBIAN_FRONTEND=noninteractive apt-get install -y auditd"
-      log "[OK] Paquete auditd instalado"
+      log "[SUCCESS] Paquete auditd instalado"
     fi
   fi
 }
@@ -72,7 +72,7 @@ ensure_service_enabled_active() {
   if [[ $state_enabled == "enabled" && $state_active == "active" ]]; then
     log "[OK] Servicio $svc está habilitado ($state_enabled) y activo ($state_active)"
   else
-    log "[ERR] No se pudo habilitar/activar el servicio $svc (enabled=$state_enabled active=$state_active)"
+    log "[ERROR] No se pudo habilitar/activar el servicio $svc (enabled=$state_enabled active=$state_active)"
     exit 1
   fi
 }
@@ -86,7 +86,7 @@ validate_auditctl() {
   if auditctl -s &>/dev/null; then
     log "[OK] auditctl responde correctamente"
   else
-    log "[ERR] auditctl no responde correctamente. Verificar si auditd está corriendo y configurado"
+    log "[ERROR] auditctl no responde correctamente. Verificar si auditd está corriendo y configurado"
     exit 1
   fi
 }

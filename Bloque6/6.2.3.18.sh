@@ -43,7 +43,7 @@ main() {
   ensure_root
 
   if [[ -z "$UID_MIN" ]]; then
-    log "[ERR] UID_MIN no encontrado en /etc/login.defs"
+    log "[ERROR] UID_MIN no encontrado en /etc/login.defs"
     exit 1
   fi
 

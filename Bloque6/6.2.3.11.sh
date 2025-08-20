@@ -34,7 +34,7 @@ log() {
 
 ensure_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "[ERR] Debe ser root" >&2
+    echo "[ERROR] Debe ser root" >&2
     exit 1
   fi
 }

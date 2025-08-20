@@ -33,7 +33,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 get_value() {
@@ -53,10 +53,10 @@ set_param() {
 
   if ! grep -iEq "^[[:space:]]*${key}[[:space:]]*=" "$AUDIT_CONF"; then
     run "echo '${key} = ${desired}' >> '$AUDIT_CONF'"
-    log "[OK] Añadido ${key} = ${desired}"
+    log "[EXEC] Añadido ${key} = ${desired}"
   else
     run "sed -i -E 's|^[[:space:]]*${key}[[:space:]]*=.*|${key} = ${desired}|I' '$AUDIT_CONF'"
-    log "[OK] Actualizado ${key} a ${desired}"
+    log "[EXEC] Actualizado ${key} a ${desired}"
   fi
 }
 
@@ -67,14 +67,14 @@ main() {
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
-    log "[ERR] Archivo $AUDIT_CONF no encontrado"
+    log "[ERROR] Archivo $AUDIT_CONF no encontrado"
     exit 1
   fi
 
   if [[ $DRY_RUN -eq 0 ]]; then
     BACKUP="${AUDIT_CONF}.bak.$(date +%Y%m%d%H%M%S)"
     cp -p "$AUDIT_CONF" "$BACKUP"
-    log "Backup creado: $BACKUP"
+    log "[EXEC] Backup creado: $BACKUP"
   fi
 
   set_param "space_left_action" "$REQ_SPACE_LEFT_ACTION"

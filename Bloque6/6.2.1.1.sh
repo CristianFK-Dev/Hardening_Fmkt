@@ -29,7 +29,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 pkg_installed() {
@@ -46,7 +46,8 @@ ensure_package() {
     else
       run "apt-get update -qq"
       run "DEBIAN_FRONTEND=noninteractive apt-get install -y '$pkg'"
-      log "[OK] Paquete $pkg instalado"
+      log "[SUCCESS] Paquete $pkg instalado correctamente."
+
     fi
   fi
 }
@@ -56,10 +57,8 @@ main() {
   : > "$LOG_FILE"
   log "[INFO] Iniciando $SCRIPT_NAME – $ITEM_ID ($ITEM_DESC)"
   ensure_root
-
   ensure_package auditd
   ensure_package audispd-plugins
-
   exit 0
 }
 

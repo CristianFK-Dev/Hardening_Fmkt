@@ -52,7 +52,7 @@ patch_login_defs() {
       else
         backup "$LOGIN_DEFS"
         run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
-        log "[SUCCESS] PASS_MIN_DAYS actualizado de $current_value a 1"
+        log "[EXEC] PASS_MIN_DAYS actualizado de $current_value a 1"
       fi
     else
       log "[OK] PASS_MIN_DAYS ya está configurado correctamente"

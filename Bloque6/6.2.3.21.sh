@@ -27,7 +27,7 @@ log() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 run() {
@@ -49,7 +49,7 @@ main() {
   if echo "$CHECK_OUTPUT" | grep -q "No change"; then
     log "[OK] Reglas activas y persistidas ya están sincronizadas"
   else
-    log "[WARN] Desalineación detectada entre reglas activas y persistidas"
+    log "[FAIL] Desalineación detectada entre reglas activas y persistidas"
     log "[INFO] Resultado de augenrules --check:"
     log "$CHECK_OUTPUT"
 
@@ -57,8 +57,8 @@ main() {
 
     ENABLED_MODE=$(auditctl -s | awk '/^enabled/ {print $2}')
     if [[ "$ENABLED_MODE" == "2" ]]; then
-      log "[NOTICE] Las reglas fueron cargadas, pero auditd está en modo inmutable (enabled=2)"
-      log "[NOTICE] Se requiere reinicio para aplicar los cambios"
+      log "[INFO] Las reglas fueron cargadas, pero auditd está en modo inmutable (enabled=2)"
+      log "[INFO] Se requiere reinicio para aplicar los cambios"
     else
       log "[OK] Reglas sincronizadas con éxito usando 'augenrules --load'"
     fi

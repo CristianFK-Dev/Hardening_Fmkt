@@ -69,7 +69,7 @@ if [[ $DRY_RUN -eq 0 ]]; then
   if auditctl -D 2>/dev/null; then
     log "[OK] Reglas de auditoría eliminadas del kernel."
   else
-    log "[WARN] No se pudieron eliminar las reglas del kernel con 'auditctl -D'. Esto es normal si el modo inmutable (-e 2) estaba activo sin un reinicio previo. Un reinicio del sistema será necesario para una limpieza completa."
+    log "[FAIL] No se pudieron eliminar las reglas del kernel con 'auditctl -D'. Esto es normal si el modo inmutable (-e 2) estaba activo sin un reinicio previo. Un reinicio del sistema será necesario para una limpieza completa."
   fi
 else
   log "[DRY-RUN] Eliminaría las reglas de auditoría del kernel con 'auditctl -D'."
@@ -101,6 +101,6 @@ else
   log "[DRY-RUN] Borraría todos los archivos .rules en /etc/audit/rules.d/."
 fi
 
-log "[OK] === Limpieza y deshabilitación de Auditd completada. ==="
+log "[SUCCESS] === Limpieza y deshabilitación de Auditd completada. ==="
 log "[INFO] Para asegurar que todas las reglas estén completamente purgadas del kernel (especialmente si el modo inmutable estaba activo), se recomienda un REINICIO COMPLETO del sistema."
 log "[INFO] Ejecute: sudo reboot"

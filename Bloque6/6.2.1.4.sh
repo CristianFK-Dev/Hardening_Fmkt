@@ -33,7 +33,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 main() {
@@ -43,28 +43,28 @@ main() {
   ensure_root
 
   if [[ ! -f "$GRUB_FILE" ]]; then
-    log "[ERR] Archivo $GRUB_FILE no encontrado"
+    log "[ERROR] Archivo $GRUB_FILE no encontrado"
     exit 1
   fi
 
-  log "Backup creado: $BACKUP"
+  log "[EXEC] Backup creado: $BACKUP"
   [[ $DRY_RUN -eq 0 ]] && cp "$GRUB_FILE" "$BACKUP"
 
   if grep -Eq "\\baudit_backlog_limit=[0-9]+" "$GRUB_FILE"; then
-    log "Parámetro audit_backlog_limit ya existe, será reemplazado por $LIMIT"
+    log "[INFO] Parámetro audit_backlog_limit ya existe, será reemplazado por $LIMIT"
     if [[ $DRY_RUN -eq 1 ]]; then
       log "[DRY-RUN] Reemplazaría audit_backlog_limit existente por $LIMIT"
     else
       sed -i "s/\\baudit_backlog_limit=[0-9]\\+/$LIMIT/" "$GRUB_FILE"
-      log "[OK] audit_backlog_limit actualizado a 8192"
+      log "[SUCCESS] audit_backlog_limit actualizado a 8192"
     fi
   else
-    log "Parámetro audit_backlog_limit no encontrado, se agregará a GRUB_CMDLINE_LINUX"
+    log "[INFO] Parámetro audit_backlog_limit no encontrado, se agregará a GRUB_CMDLINE_LINUX"
     if [[ $DRY_RUN -eq 1 ]]; then
       log "[DRY-RUN] Agregaría $LIMIT a GRUB_CMDLINE_LINUX"
     else
       sed -i "s/^GRUB_CMDLINE_LINUX=\"\(.*\)\"/GRUB_CMDLINE_LINUX=\"\1 $LIMIT\"/" "$GRUB_FILE"
-      log "[OK] audit_backlog_limit=8192 agregado"
+      log "[SUCCESS] audit_backlog_limit=8192 agregado"
     fi
   fi
 

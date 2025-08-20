@@ -32,7 +32,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 main() {
@@ -42,11 +42,11 @@ main() {
   ensure_root
 
   if [[ ! -f "$GRUB_FILE" ]]; then
-    log "[ERR] Archivo $GRUB_FILE no encontrado"
+    log "[ERROR] Archivo $GRUB_FILE no encontrado"
     exit 1
   fi
 
-  log "[INFO] Backup creado: $BACKUP"
+  log "[EXEC] Backup creado: $BACKUP"
   [[ $DRY_RUN -eq 0 ]] && cp "$GRUB_FILE" "$BACKUP"
 
   if grep -Eq '(^|\s)audit=1(\s|$)' "$GRUB_FILE"; then
@@ -57,7 +57,7 @@ main() {
       log "[DRY-RUN] Añadiría audit=1 en GRUB_CMDLINE_LINUX"
     else
       sed -i 's/^GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 audit=1"/' "$GRUB_FILE"
-      log "[OK] audit=1 añadido en GRUB_CMDLINE_LINUX"
+      log "[SUCCESS] audit=1 añadido en GRUB_CMDLINE_LINUX"
     fi
   fi
 

@@ -41,7 +41,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 rule_present() {
@@ -55,7 +55,7 @@ add_rule() {
     log "[OK] Regla ya presente: $rule"
   else
     run "echo '$rule' >> '$RULE_FILE'"
-    log "[OK] Regla añadida: $rule"
+    log "[EXEC] Regla añadida: $rule"
   fi
 }
 
