@@ -98,9 +98,7 @@ main() {
     log "[DRY-RUN] No se aplicaron cambios a ${SSH_CFG}"
     rm -f "${TMP}"
   fi
-
-  log "[SUCCESS] ${ITEM_ID} aplicado"
-  log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+  
   exit 0
 }
 
