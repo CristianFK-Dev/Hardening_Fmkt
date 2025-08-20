@@ -40,24 +40,24 @@ backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKU
 ensure_root() { [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }; }
 
 patch_login_defs() {
-  log "→ Revisando $LOGIN_DEFS"
+  log "[INFO] Archivo $LOGIN_DEFS→ Revisando $LOGIN_DEFS"
   if grep -qE '^\s*PASS_MIN_DAYS\s+[0-9]+' "$LOGIN_DEFS"; then
     if grep -qE '^\s*PASS_MIN_DAYS\s+0\b' "$LOGIN_DEFS"; then
       backup "$LOGIN_DEFS"
       run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
-      log "  • PASS_MIN_DAYS cambiado a 1"
+      log "[INFO] • PASS_MIN_DAYS cambiado a 1"
     else
-      log "  • PASS_MIN_DAYS ya ≥1 – sin cambios"
+      log "[INFO] • PASS_MIN_DAYS ya ≥1 – sin cambios"
     fi
   else
     backup "$LOGIN_DEFS"
     run "echo -e '\nPASS_MIN_DAYS\t1' >> '$LOGIN_DEFS'"
-    log "  • PASS_MIN_DAYS = 1 añadido"
+    log "[INFO] • PASS_MIN_DAYS = 1 añadido"
   fi
 }
 
 patch_users() {
-  log "→ Ajustando mindays de usuarios"
+  log "[INFO] → Ajustando mindays de usuarios"
   while IFS=: read -r user pw last min rest; do
     [[ $pw =~ ^\$ ]] || continue
     [[ -z $min || $min -lt 1 ]] || continue
@@ -67,7 +67,7 @@ patch_users() {
 
 main() {
   ensure_root
-  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada (dry-run=$DRY_RUN) ==="
+  log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada (dry-run=$DRY_RUN) ==="
   patch_login_defs
   patch_users
   exit 0

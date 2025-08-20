@@ -47,7 +47,7 @@ ensure_root() {
 
 main() {
   ensure_root
-  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
+  log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   PATTERN='^[[:space:]]*[^#].*NOPASSWD'
   EXCLUDE='^[[:space:]]*(root|admin|nessus|nessusauth)[[:space:]].*NOPASSWD'
@@ -80,17 +80,17 @@ main() {
 
       if [[ $DRY_RUN -eq 0 ]]; then
         mv "$TMP" "$FILE"
-        log "→ NOPASSWD deshabilitado en $FILE (excepciones mantenidas)"
+        log "[INFO]→ NOPASSWD deshabilitado en $FILE (excepciones mantenidas)"
       else
         log "[DRY-RUN] Cambios no aplicados en $FILE"
         rm -f "$TMP"
       fi
     else
-      log "No se encontraron entradas NOPASSWD para modificar en $FILE"
+      log "[INFO] No se encontraron entradas NOPASSWD para modificar en $FILE"
     fi
   done
 
-  [[ $MODIFIED -eq 0 ]] && log "Sistema ya conforme. Sin cambios aplicados."
+  [[ $MODIFIED -eq 0 ]] && log "[INFO] Sistema ya conforme. Sin cambios aplicados."
 
   exit 0
 }

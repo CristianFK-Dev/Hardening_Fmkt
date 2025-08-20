@@ -12,7 +12,6 @@ set -euo pipefail
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_FILE="${BASE_DIR}/Hardening.log"
 
-# Colores opcionales
 G="\e[32m"; R="\e[31m"; Y="\e[33m"; NC="\e[0m"; LIGHT_BLUE="\e[94m";
 
 ensure_root() { [[ $EUID -eq 0 ]] || { echo -e "${R}Ejecutar como root${NC}"; exit 1; }; }

@@ -25,8 +25,6 @@ mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 log() {
-  local msg="$1"
-  printf '[%s] %s\n' "$(date +'%F %T')" "$msg" | tee -a "$LOG_FILE"
   mkdir -p "$(dirname "${LOG_FILE}")"
   echo -e "[$(date +%F %T)] $*" | tee -a "${LOG_FILE}"
 }
@@ -43,10 +41,10 @@ run() {
     fi
 }
 
-log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
+log "[INFO] === Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
 
 if lsmod | grep -q "^${MOD_NAME}\b"; then
-  log "Módulo ${MOD_NAME} cargado → descargando"
+  log "[INFO] Módulo ${MOD_NAME} cargado → descargando"
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     log "[DRY-RUN] PENDING: descargaría el módulo ${MOD_NAME}"
   else
@@ -54,7 +52,7 @@ if lsmod | grep -q "^${MOD_NAME}\b"; then
     run "rmmod ${MOD_NAME}     || true"
   fi
 else
-  log "Módulo ${MOD_NAME} no está cargado"
+  log "[INFO] Módulo ${MOD_NAME} no está cargado"
 fi
 
 need_update=0
@@ -66,7 +64,7 @@ else
 fi
 
 if [[ "${need_update}" -eq 1 ]]; then
-  log "Actualizando ${CONF_FILE}"
+  log "[INFO] Actualizando ${CONF_FILE}"
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     {
       echo "install ${MOD_NAME} /bin/false"
@@ -77,14 +75,14 @@ if [[ "${need_update}" -eq 1 ]]; then
     log "[DRY-RUN] PENDING: escribiría líneas install/blacklist en ${CONF_FILE}"
   fi
 else
-  log "${CONF_FILE} ya contiene las directivas necesarias"
+  log "[INFO] ${CONF_FILE} ya contiene las directivas necesarias"
 fi
 
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
 if [[ -n "${MOD_PATHS}" ]]; then
-  log "Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
+  log "[INFO] Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
 else
-  log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
+  log "[INFO] Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
 exit 0

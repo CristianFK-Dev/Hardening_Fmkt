@@ -43,19 +43,19 @@ run() {
     fi
 }
 
-log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
+log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
 if command -v docker &>/dev/null        && docker info --format '{{.Driver}}' 2>/dev/null | grep -qi overlay        && [[ "${FORCE}" -ne 1 ]]; then
-  log "ERROR: Docker usa overlay2 → ejecuta con --force para continuar."
+  log "[ERROR] Docker usa overlay2 → ejecuta con --force para continuar."
   exit 1
 fi
 
 if lsmod | grep -q "^${MOD_NAME}\b"; then
-  log "Módulo ${MOD_NAME} cargado → descargando"
+  log "[INFO] Módulo ${MOD_NAME} cargado → descargando"
   run "modprobe -r ${MOD_NAME} || true"
   run "rmmod ${MOD_NAME}     || true"
 else
-  log "Módulo ${MOD_NAME} no está cargado"
+  log "[INFO] Módulo ${MOD_NAME} no está cargado"
 fi
 
 need_update=0
@@ -86,9 +86,9 @@ fi
 
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
 if [[ -n "${MOD_PATHS}" ]]; then
-  log "Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
+  log "[INFO] Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
 else
-  log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
+  log "[INFO] Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
 exit 0

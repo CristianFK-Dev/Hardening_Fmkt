@@ -49,22 +49,22 @@ ensure_root() {
 
 main() {
   ensure_root
-  log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
+  log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   if [[ ! -f "$FAILLOCK_CONF" ]]; then
-    log "Archivo $FAILLOCK_CONF no existe. Creando..."
+    log "[INFO] Archivo $FAILLOCK_CONF no existe. Creando..."
     run "touch '$FAILLOCK_CONF'"
   fi
 
   if grep -Eq '^\s*(even_deny_root|root_unlock_time\s*=\s*[6-9][0-9]|[1-9][0-9]{2,})\b' "$FAILLOCK_CONF"; then
     log "[OK] El archivo ya contiene configuración válida (even_deny_root o root_unlock_time >= 60)."
-    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    log "[INFO] == Remediación ${ITEM_ID}: ${ITEM_DESC} finalizada =="
     exit 0
   fi
 
   BACKUP_FILE="${BACKUP_DIR}/faillock.conf.$(date +%Y%m%d-%H%M%S)"
   run "cp --preserve=mode,ownership,timestamps '$FAILLOCK_CONF' '$BACKUP_FILE'"
-  log "Backup creado: $BACKUP_FILE"
+  log "[INFO]Backup creado: $BACKUP_FILE"
 
   run "echo >> '$FAILLOCK_CONF'"
   run "echo '# Añadido por $SCRIPT_NAME para cumplimiento $ITEM_ID' >> '$FAILLOCK_CONF'"

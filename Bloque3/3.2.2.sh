@@ -40,10 +40,10 @@ run() {
     fi
 }
 
-log "=== Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
+log "[INFO] === Remediación ${ITEM_ID}: Deshabilitar ${MOD_NAME} ==="
 
 if lsmod | grep -q "^${MOD_NAME}\\b"; then
-  log "Módulo ${MOD_NAME} cargado → descargando"
+  log "[INFO] Módulo ${MOD_NAME} cargado → descargando"
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     log "[DRY-RUN] PENDING: descargaría el módulo ${MOD_NAME}"
   else
@@ -51,7 +51,7 @@ if lsmod | grep -q "^${MOD_NAME}\\b"; then
     run "rmmod ${MOD_NAME}     || true"
   fi
 else
-  log "Módulo ${MOD_NAME} no está cargado"
+  log "[INFO] Módulo ${MOD_NAME} no está cargado"
 fi
 
 need_update=0
@@ -63,10 +63,10 @@ else
 fi
 
 if [[ "${need_update}" -eq 1 ]]; then
-  log "Actualizando ${CONF_FILE}"
+  log "[INFO] Actualizando ${CONF_FILE}"
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     {
-      echo "install ${MOD_NAME} /bin/false"
+      echo "in stall ${MOD_NAME} /bin/false"
       echo "blacklist ${MOD_NAME}"
     } > "${CONF_FILE}"
     chmod 644 "${CONF_FILE}"
@@ -79,9 +79,9 @@ fi
 
 MOD_PATHS=$(modinfo -n "${MOD_NAME}" 2>/dev/null || true)
 if [[ -n "${MOD_PATHS}" ]]; then
-  log "Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
+  log "[INFO] Módulo ${MOD_NAME}.ko presente en: ${MOD_PATHS}"
 else
-  log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
+  log "[INFO] Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
 exit 0

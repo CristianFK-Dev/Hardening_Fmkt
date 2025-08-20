@@ -42,15 +42,15 @@ run() {
 }
 
 main() {
-  log "=== Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
+  log "[INFO] === Remediación ${ITEM_ID}: Establecer DisableForwarding yes ==="
 
   if [[ ! -f "${SSH_CFG}" ]]; then
     if [[ "${DRY_RUN}" -eq 1 ]]; then
       log "[AUDIT] No se encontró el archivo de configuración: ${SSH_CFG}. No se realizaría ningún cambio."
-      log "== Auditoría ${ITEM_ID}: ${ITEM_DESC} finalizada =="
+      log "[INFO] == Auditoría ${ITEM_ID}: ${ITEM_DESC} finalizada =="
     else
       log "[FAIL] No se encontró el archivo de configuración: ${SSH_CFG}. No se realizaron cambios."
-      log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+      log "[INFO] == Remediación ${ITEM_ID}: ${ITEM_DESC} finalizada =="
     fi
     exit 1
   fi
@@ -66,7 +66,7 @@ main() {
 
   if [[ "${CURRENT_VALUE}" == "yes" ]]; then
     log "[OK] DisableForwarding ya está en 'yes' (línea ${LINE_NUM}). Nada que hacer."
-    log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    log "[INFO]== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 0
   fi
 
@@ -76,10 +76,10 @@ main() {
   TMP=$(mktemp)
 
   if [[ -n "${LINE_NUM}" ]]; then
-    log "La directiva 'DisableForwarding' existe con un valor incorrecto. Se corregirá."
+    log "[INFO] La directiva 'DisableForwarding' existe con un valor incorrecto. Se corregirá."
     run "sed '${LINE_NUM}s/.*/DisableForwarding yes/' '${SSH_CFG}' > '${TMP}'"
   else
-    log "La directiva 'DisableForwarding' no existe. Se añadirá al final."
+    log "[INFO] La directiva 'DisableForwarding' no existe. Se añadirá al final."
     run "{ cat '${SSH_CFG}'; echo; echo '# Added by hardening script ${ITEM_ID}'; echo 'DisableForwarding yes'; } > '${TMP}'"
   fi
 
@@ -87,13 +87,13 @@ main() {
 
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     mv "${TMP}" "${SSH_CFG}"
-    log "Archivo ${SSH_CFG} actualizado."
+    log "[INFO]Archivo ${SSH_CFG} actualizado."
     if command -v systemctl &>/dev/null; then
       run "systemctl reload sshd"
     else
       run "service ssh reload"
     fi
-    log "Servicio sshd recargado."
+    log "[INFO] Servicio sshd recargado."
   else
     log "[DRY-RUN] No se aplicaron cambios a ${SSH_CFG}"
     rm -f "${TMP}"
