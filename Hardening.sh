@@ -89,8 +89,6 @@ run_all() {
       fi
 
       local output
-      # Captura stdout y stderr, y comprueba el código de salida al mismo tiempo
-      # Pasamos los argumentos en $script_args
       if ! output=$("$script" $script_args 2>&1); then
         local msg; msg=$(echo "$output" | head -n 1)
         log_line "${bname} | ${sname} | FAIL | ${msg}"
@@ -98,11 +96,12 @@ run_all() {
       else
           if [[ $mode == "audit" ]]; then
             if echo "$output" | grep -q "\[DRY-RUN\]"; then
-              log_line "${bname} | ${sname} | AUDIT: PENDING |"
-              echo -e "${Y}${bname}/${sname} AUDIT: PENDING${NC}"
+              # Simplificar el mensaje de log para auditoría
+              log_line "$(date '+%F %T') | ${bname} | ${sname} | REQUIERE REMEDIACIÓN"
+              echo -e "${Y}${bname}/${sname} PENDIENTE${NC}"
             else
-              log_line "${bname} | ${sname} | OK |"
-              echo -e "${G}${bname}/${sname} OK${NC}"
+              log_line "$(date '+%F %T') | ${bname} | ${sname} | CUMPLE"
+              echo -e "${G}${bname}/${sname} CUMPLE${NC}"
             fi
           else
             log_line "${bname} | ${sname} | OK |"

@@ -30,13 +30,17 @@ log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
 }
+# Template para la función run() en los scripts
 run() {
-  if [[ "${DRY_RUN}" -eq 1 ]]; then
-    log "[DRY-RUN] $*"
-  else
-    log "[EXEC] $*"
-    eval "$@"
-  fi
+    local cmd="$*"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Pendiente: $cmd"
+        return 0
+    else
+        log "[EXEC] $cmd"
+        eval "$@"
+        return $?
+    fi
 }
 
 log "=== Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
