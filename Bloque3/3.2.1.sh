@@ -66,8 +66,8 @@ if [[ "${need_update}" -eq 1 ]]; then
     else
         log "[EXEC] Actualizando ${CONF_FILE}"
         {
-            echo "install ${MOD_NAME} /bin/false"
-            echo "blacklist ${MOD_NAME}"
+            echo "[EXEC] install ${MOD_NAME} /bin/false"
+            echo "[EXEC] blacklist ${MOD_NAME}"
         } > "${CONF_FILE}"
         chmod 644 "${CONF_FILE}"
         log "[SUCCESS] Archivo actualizado"

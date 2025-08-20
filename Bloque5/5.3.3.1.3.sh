@@ -64,13 +64,13 @@ main() {
 
   BACKUP_FILE="${BACKUP_DIR}/faillock.conf.$(date +%Y%m%d-%H%M%S)"
   run "cp --preserve=mode,ownership,timestamps '$FAILLOCK_CONF' '$BACKUP_FILE'"
-  log "[INFO]Backup creado: $BACKUP_FILE"
+  log "[INFO] Backup creado: $BACKUP_FILE"
 
   run "echo >> '$FAILLOCK_CONF'"
   run "echo '# Añadido por $SCRIPT_NAME para cumplimiento $ITEM_ID' >> '$FAILLOCK_CONF'"
   run "echo 'even_deny_root' >> '$FAILLOCK_CONF'"
   run "echo 'root_unlock_time = $ROOT_UNLOCK_TIME' >> '$FAILLOCK_CONF'"
-  log "[OK] Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
+  log "[SUCCESS] Se añadieron 'even_deny_root' y 'root_unlock_time = $ROOT_UNLOCK_TIME' a $FAILLOCK_CONF"
 
   exit 0
 }

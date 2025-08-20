@@ -28,6 +28,7 @@ LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
+
 }
 run() {
     local cmd="$*"
@@ -74,8 +75,8 @@ if [[ "${need_update}" -eq 1 ]]; then
     else
         log "[EXEC] Actualizando ${CONF_FILE}"
         {
-            echo "install ${MOD_NAME} /bin/false"
-            echo "blacklist ${MOD_NAME}"
+            echo "[EXEC] install ${MOD_NAME} /bin/false"
+            echo "[EXEC] blacklist ${MOD_NAME}"
         } > "${CONF_FILE}"
         chmod 644 "${CONF_FILE}"
         log "[SUCCESS] Archivo actualizado"

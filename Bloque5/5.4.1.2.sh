@@ -40,34 +40,69 @@ backup(){ local f=$1; run "cp --preserve=mode,ownership,timestamps '$f' '${BACKU
 ensure_root() { [[ $EUID -eq 0 ]] || { log "ERROR: Este script debe ejecutarse como root."; exit 1; }; }
 
 patch_login_defs() {
-  log "[INFO] Archivo $LOGIN_DEFS→ Revisando $LOGIN_DEFS"
+  log "[INFO] Revisando configuración en $LOGIN_DEFS"
+  
   if grep -qE '^\s*PASS_MIN_DAYS\s+[0-9]+' "$LOGIN_DEFS"; then
     if grep -qE '^\s*PASS_MIN_DAYS\s+0\b' "$LOGIN_DEFS"; then
-      backup "$LOGIN_DEFS"
-      run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
-      log "[INFO] • PASS_MIN_DAYS cambiado a 1"
+      local current_value=$(grep -E '^\s*PASS_MIN_DAYS\s+0\b' "$LOGIN_DEFS" | awk '{print $2}')
+      if [[ $DRY_RUN -eq 1 ]]; then
+        log "[DRY-RUN] Cambio pendiente en $LOGIN_DEFS"
+        log "[DRY-RUN] - Valor actual: PASS_MIN_DAYS = $current_value"
+        log "[DRY-RUN] - Valor deseado: PASS_MIN_DAYS = 1"
+      else
+        backup "$LOGIN_DEFS"
+        run "sed -E 's/^\s*PASS_MIN_DAYS\s+0\b/PASS_MIN_DAYS\t1/' -i '$LOGIN_DEFS'"
+        log "[SUCCESS] PASS_MIN_DAYS actualizado de $current_value a 1"
+      fi
     else
-      log "[OK] • PASS_MIN_DAYS ya ≥1 – sin cambios"
+      log "[OK] PASS_MIN_DAYS ya está configurado correctamente"
     fi
   else
-    backup "$LOGIN_DEFS"
-    run "echo -e '\nPASS_MIN_DAYS\t1' >> '$LOGIN_DEFS'"
-    log "[INFO] • PASS_MIN_DAYS = 1 añadido"
+    if [[ $DRY_RUN -eq 1 ]]; then
+      log "[DRY-RUN] Cambio pendiente en $LOGIN_DEFS"
+      log "[DRY-RUN] - Parámetro PASS_MIN_DAYS no existe"
+      log "[DRY-RUN] - Se añadirá: PASS_MIN_DAYS = 1"
+    else
+      backup "$LOGIN_DEFS"
+      run "echo -e '\nPASS_MIN_DAYS\t1' >> '$LOGIN_DEFS'"
+      log "[SUCCESS] PASS_MIN_DAYS = 1 añadido al archivo"
+    fi
   fi
 }
 
 patch_users() {
-  log "[INFO] → Ajustando mindays de usuarios"
+  log "[INFO] Revisando configuración de usuarios"
+  local changes_needed=0
+  local users_to_change=""
+
   while IFS=: read -r user pw last min rest; do
     [[ $pw =~ ^\$ ]] || continue
     [[ -z $min || $min -lt 1 ]] || continue
-    run "chage --mindays 1 '$user'"
+    changes_needed=1
+    users_to_change+="$user (actual: $min) "
   done < /etc/shadow
+
+  if [[ $changes_needed -eq 1 ]]; then
+    if [[ $DRY_RUN -eq 1 ]]; then
+      log "[DRY-RUN] Usuarios que requieren cambios:"
+      log "[DRY-RUN] - Usuarios afectados: $users_to_change"
+      log "[DRY-RUN] - Se configurará mindays=1 para estos usuarios"
+    else
+      while IFS=: read -r user pw last min rest; do
+        [[ $pw =~ ^\$ ]] || continue
+        [[ -z $min || $min -lt 1 ]] || continue
+        run "chage --mindays 1 '$user'"
+        log "[SUCCESS] Usuario $user actualizado: mindays=1"
+      done < /etc/shadow
+    fi
+  else
+    log "[OK] Todos los usuarios tienen mindays configurado correctamente"
+  fi
 }
 
 main() {
   ensure_root
-  log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada (dry-run=$DRY_RUN) ==="
+  log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} iniciada ==="
   patch_login_defs
   patch_users
   exit 0

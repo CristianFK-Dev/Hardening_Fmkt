@@ -66,7 +66,7 @@ main() {
 
   if [[ "${CURRENT_VALUE}" == "yes" ]]; then
     log "[OK] DisableForwarding ya está en 'yes' (línea ${LINE_NUM}). Nada que hacer."
-    log "[INFO]== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
+    log "[INFO] == Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
     exit 0
   fi
 
@@ -78,6 +78,7 @@ main() {
   if [[ -n "${LINE_NUM}" ]]; then
     log "[INFO] La directiva 'DisableForwarding' existe con un valor incorrecto. Se corregirá."
     run "sed '${LINE_NUM}s/.*/DisableForwarding yes/' '${SSH_CFG}' > '${TMP}'"
+    log "[SUCCESS] Archivo ${SSH_CFG} actualizado."
   else
     log "[INFO] La directiva 'DisableForwarding' no existe. Se añadirá al final."
     run "{ cat '${SSH_CFG}'; echo; echo '# Added by hardening script ${ITEM_ID}'; echo 'DisableForwarding yes'; } > '${TMP}'"
@@ -87,13 +88,14 @@ main() {
 
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     mv "${TMP}" "${SSH_CFG}"
-    log "[INFO]Archivo ${SSH_CFG} actualizado."
+    log "[EXEC] Archivo ${SSH_CFG} actualizado."
     if command -v systemctl &>/dev/null; then
       run "systemctl reload sshd"
     else
       run "service ssh reload"
     fi
     log "[INFO] Servicio sshd recargado."
+    log "[SUCCESS] Servicio recargado."
   else
     log "[DRY-RUN] No se aplicaron cambios a ${SSH_CFG}"
     rm -f "${TMP}"

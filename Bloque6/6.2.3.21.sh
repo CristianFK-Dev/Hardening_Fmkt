@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # =============================================================================
-# 6.2.3.21 – Asegurar que se sincronizan las reglas activas y persistidas de auditd
+# 6.2.3.21 – Asegurar que se sincronizan las reglas activas y persistentes de auditd
 # =============================================================================
 
 set -euo pipefail

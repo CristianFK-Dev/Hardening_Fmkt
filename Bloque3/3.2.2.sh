@@ -63,13 +63,14 @@ else
 fi
 
 if [[ "${need_update}" -eq 1 ]]; then
-  log "[INFO] Actualizando ${CONF_FILE}"
+  log "[EXEC] Actualizando ${CONF_FILE}"
   if [[ "${DRY_RUN}" -eq 0 ]]; then
     {
-      echo "in stall ${MOD_NAME} /bin/false"
-      echo "blacklist ${MOD_NAME}"
+      echo "[EXEC] install ${MOD_NAME} /bin/false"
+      echo "[EXEC] blacklist ${MOD_NAME}"
     } > "${CONF_FILE}"
     chmod 644 "${CONF_FILE}"
+    log "[SUCCESS] Archivo actualizado"
   else
     log "[DRY-RUN] PENDING: escribiría líneas install/blacklist en ${CONF_FILE}"
   fi

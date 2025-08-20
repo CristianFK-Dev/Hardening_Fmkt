@@ -69,7 +69,7 @@ main() {
       run "cp --preserve=mode,ownership,timestamps '$FILE' '$BACKUP'"
 
       TMP=$(mktemp)
-      log "Procesando $FILE → $TMP"
+      log "[INFO] Procesando $FILE → $TMP"
       awk -v tag="$TAG" -v today="$(date +%F)" -v exclude="$EXCLUDE" -v pattern="$PATTERN" '
         $0 ~ exclude {print; next}
         $0 ~ pattern && $0 !~ tag {print tag, today, $0; next}
@@ -80,13 +80,14 @@ main() {
 
       if [[ $DRY_RUN -eq 0 ]]; then
         mv "$TMP" "$FILE"
-        log "[INFO]→ NOPASSWD deshabilitado en $FILE (excepciones mantenidas)"
+        log "[INFO] NOPASSWD deshabilitado en $FILE (excepciones mantenidas)"
+        log "[SUCCESS] Archivo ${FILE} actualizado."
       else
         log "[DRY-RUN] Cambios no aplicados en $FILE"
         rm -f "$TMP"
       fi
     else
-      log "[INFO] No se encontraron entradas NOPASSWD para modificar en $FILE"
+      log "[OK] No se encontraron entradas NOPASSWD para modificar en $FILE"
     fi
   done
 

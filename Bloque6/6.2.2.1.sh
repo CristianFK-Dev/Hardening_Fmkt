@@ -32,7 +32,7 @@ run() {
 }
 
 ensure_root() {
-  [[ $EUID -eq 0 ]] || { log "[ERR] Este script debe ejecutarse como root."; exit 1; }
+  [[ $EUID -eq 0 ]] || { log "[ERROR] Este script debe ejecutarse como root."; exit 1; }
 }
 
 get_current_value() {
@@ -46,7 +46,7 @@ main() {
   ensure_root
 
   if [[ ! -f "$AUDIT_CONF" ]]; then
-    log "[ERR] Archivo $AUDIT_CONF no encontrado"
+    log "[ERROR] Archivo $AUDIT_CONF no encontrado"
     exit 1
   fi
 
