@@ -23,6 +23,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${SCRIPT_DIR}/Log/${LOG_SUBDIR}"
 mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
+
 log() {
     mkdir -p "$(dirname "${LOG_FILE}")"
     echo -e "[$(date +%F\ %T)] $*" | tee -a "${LOG_FILE}";
