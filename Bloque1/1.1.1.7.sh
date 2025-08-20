@@ -91,6 +91,4 @@ else
   log "Módulo ${MOD_NAME}.ko NO existe en disco (posible builtin)"
 fi
 
-log "[SUCCESS] ${ITEM_ID} aplicado"
-log "== Remediación ${ITEM_ID}: ${ITEM_DESC} completada =="
 exit 0
