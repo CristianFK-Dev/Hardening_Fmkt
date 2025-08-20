@@ -25,6 +25,8 @@ mkdir -p "${LOG_DIR}"
 LOG_FILE="${LOG_DIR}/$(date +%Y%m%d-%H%M%S)_${ITEM_ID}.log"
 
 log() {
+  local msg="$1"
+  printf '[%s] %s\n' "$(date +'%F %T')" "$msg" | tee -a "$LOG_FILE"
   mkdir -p "$(dirname "${LOG_FILE}")"
   echo -e "[$(date +%F %T)] $*" | tee -a "${LOG_FILE}"
 }
