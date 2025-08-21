@@ -53,6 +53,7 @@ if lsmod | grep -q "^${MOD_NAME}\b"; then
         log "[EXEC] Descargando módulo ${MOD_NAME}"
         run "modprobe -r ${MOD_NAME} || true"
         run "rmmod ${MOD_NAME} || true"
+        log "[EXEC] Módulo ${MOD_NAME} descargado"
     fi
 else
     log "[OK] Módulo ${MOD_NAME} no está cargado"

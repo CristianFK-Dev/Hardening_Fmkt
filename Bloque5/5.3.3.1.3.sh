@@ -52,7 +52,7 @@ main() {
   log "[INFO] === Remediación ${ITEM_ID}: ${ITEM_DESC} ==="
 
   if [[ ! -f "$FAILLOCK_CONF" ]]; then
-    log "[EXEC] Archivo $FAILLOCK_CONF no existe. Creando..."
+    log "[INFO] Archivo $FAILLOCK_CONF no existe"
     run "touch '$FAILLOCK_CONF'"
     log "[SUCCESS] Archivo $FAILLOCK_CONF creado"
   fi
